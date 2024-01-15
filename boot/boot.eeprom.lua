@@ -1,3 +1,6 @@
+event.ignoreAll()
+event.clear()
+
 --//WARN: computer.promote used
 computer.promote()
 
@@ -18,15 +21,12 @@ filesystem.mount('/dev/' .. drive, '/')
 
 print("boot complete!")
 
---//TODO: load OS maybe boot order of files (like FicsIt-OS) or just hardcoded
-
 local bootEntries = {}
 local bootOrder = {}
 local bootFolder = "/boot"
-local loadedBootFiles = {}
 
 for _, child in pairs(filesystem.childs(bootFolder)) do
-    if not child:find(".boot.", nil, true) then
+    if child:find(".eeprom.", nil, true) then
         goto continue
     end
 
@@ -43,19 +43,6 @@ for _, child in pairs(filesystem.childs(bootFolder)) do
             table.insert(bootOrder, num)
         end
         table.insert(entries, path)
-    else
-        local file = filesystem.open(bootFolder .. path, 'r')
-        local str = ''
-        while true do
-            local buf = file:read(8192)
-            if not buf then
-                break
-            end
-            str = str .. buf
-        end
-        path = path:match('^(.+/.+)%..+$')
-        loadedBootFiles[path] = { str }
-        file:close()
     end
 
     ::continue::
@@ -64,14 +51,8 @@ end
 table.sort(bootOrder)
 for _, num in ipairs(bootOrder) do
     for _, path in pairs(bootEntries[num]) do
-        local loadedFile = { filesystem.loadFile(bootFolder .. path)(loadedBootFiles) }
-        local folderPath,
-        filename = path:match('^(.+)/%d+_(.+)%..+$')
-        if filename == 'Index' then
-            loadedBootFiles[folderPath] = loadedFile
-        else
-            loadedBootFiles[folderPath .. '/' .. filename] = loadedFile
-        end
+        local func = filesystem.loadFile(bootFolder .. path)
+        func()
     end
 end
 

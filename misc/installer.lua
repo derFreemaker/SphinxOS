@@ -4,6 +4,10 @@ local OSFiles = {
     {
         "boot",
         { "boot.eeprom.lua" }
+    },
+    {
+        "misc",
+        { "utils.lua" }
     }
 }
 
