@@ -1,5 +1,5 @@
 local BASE_URL = "http://localhost"
--- local BASE_URL = "https://raw.githubusercontent.com/derFreemaker/Satisfactory/main"
+-- local BASE_URL = "https://raw.githubusercontent.com/derFreemaker/SphinxOS/main"
 local BASE_PATH = ""
 
 -- Urls
