@@ -3,6 +3,7 @@
     "Lua.workspace.ignoreDir": [
         ".vscode",
         "docu/tools",
-        "**/Sim-Files"
+        "**/Sim-Files",
+        "**/Freemaker/src"
     ]
 }
