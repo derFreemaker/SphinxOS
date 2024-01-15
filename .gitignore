@@ -2,14 +2,14 @@
 *.log
 *.pid
 
+# obj and bin folders
 **/bin
 **/obj
 
-# ignore .stfolder used for Syncthing
+# .stfolder used for Syncthing
 .stfolder/
 
-# ignore .vs folder
-.vs/
-*/.vs/*
+# .vs folder
+**/.vs
 
 **/Sim-Files
