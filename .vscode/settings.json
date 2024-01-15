@@ -1,0 +1,7 @@
+{
+    "Lua.workspace.ignoreSubmodules": false,
+    "Lua.workspace.ignoreDir": [
+        ".vscode",
+        "docu/tools"
+    ]
+}
