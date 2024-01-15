@@ -3,7 +3,7 @@ local OSFiles = {
     "SphinxOS",
     {
         "boot",
-        { "boot.lua" }
+        { "boot.eeprom.lua" }
     }
 }
 

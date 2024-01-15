@@ -1,4 +1,5 @@
---//TODO: some kind of boot loader which has some core scripts
+--//WARN: computer.promote used
+computer.promote()
 
 filesystem.initFileSystem('/dev')
 local drive = ""
@@ -15,6 +16,9 @@ if drive:len() < 1 then
 end
 filesystem.mount('/dev/' .. drive, '/')
 
-
-
 print("boot complete!")
+
+--//TODO: load OS maybe boot order of files (like FicsIt-OS) or just hardcoded
+
+-- to invoke gc
+computer.stop()

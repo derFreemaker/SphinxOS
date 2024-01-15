@@ -15,7 +15,7 @@ local INSTALL_PATH = "/install"
 local INSTALL_EEPROM_PATH = INSTALL_PATH .. "/install.eeprom.lua"
 local INSTALLER_PATH = INSTALL_PATH .. "/installer.lua"
 
-local BOOT_PATH = OS_PATH .. "/boot/boot.lua"
+local BOOT_PATH = OS_PATH .. "/boot/boot.eeprom.lua"
 
 print("### initializing... ###")
 
