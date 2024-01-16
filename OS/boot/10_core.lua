@@ -19,5 +19,5 @@ function require(path)
 end
 
 ---@class Freemaker.Utils
-Utils = require("/misc/utils")
-Utils.Class = require("misc.classSystem")
+Utils = require("OS/misc/utils")
+Utils.Class = require("OS/misc/classSystem")

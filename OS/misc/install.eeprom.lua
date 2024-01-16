@@ -3,7 +3,7 @@ local BASE_URL = "http://localhost"
 local BASE_PATH = ""
 
 -- Urls
-local OS_URL = BASE_URL .. "/SphinxOS"
+local OS_URL = BASE_URL .. "/OS"
 
 local MISC_URL = OS_URL .. "/misc"
 local INSTALLER_URL = MISC_URL .. "/installer.lua"

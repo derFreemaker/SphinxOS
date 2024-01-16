@@ -1,13 +1,14 @@
 -- //TODO: hold up-to date
 local OSFiles = {
-    "SphinxOS",
+    "OS",
     {
         "boot",
         { "boot.eeprom.lua" }
     },
     {
         "misc",
-        { "utils.lua" }
+        { "utils.lua" },
+        { "classSystem.lua" }
     }
 }
 
