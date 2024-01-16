@@ -18,4 +18,6 @@ function require(path)
     return table.unpack(data)
 end
 
+---@class Freemaker.Utils
 Utils = require("/misc/utils")
+Utils.Class = require("misc.classSystem")
