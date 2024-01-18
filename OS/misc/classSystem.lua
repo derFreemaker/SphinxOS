@@ -175,7 +175,7 @@ __fileFuncs__["src.Meta"] = function()
 	---
 	---@field IsAbstract boolean
 	---
-	---@field Instances table<Freemaker.ClassSystem.Instance, boolean>
+	---@field Instances table<object, boolean>
 
 	---@class Freemaker.ClassSystem.Metatable : Freemaker.ClassSystem.MetaMethods
 	---@field Type Freemaker.ClassSystem.Type
@@ -643,7 +643,7 @@ __fileFuncs__["src.Instance"] = function()
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type
-	---@param instance Freemaker.ClassSystem.Instance
+	---@param instance object
 	function InstanceHandler.Add(typeInfo, instance)
 	    typeInfo.Instances[instance] = true
 
@@ -653,7 +653,7 @@ __fileFuncs__["src.Instance"] = function()
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type
-	---@param instance Freemaker.ClassSystem.Instance
+	---@param instance object
 	function InstanceHandler.Remove(typeInfo, instance)
 	    typeInfo.Instances[instance] = nil
 
@@ -685,7 +685,7 @@ __fileFuncs__["src.Instance"] = function()
 
 	    for instance in pairs(typeInfo.Instances) do
 	        if not Utils.Table.ContainsKey(instance, key) then
-	            instance.Members[key] = value
+	            rawset(instance, key, value)
 	        end
 	    end
 	end
@@ -1123,7 +1123,7 @@ __fileFuncs__["src.Construction"] = function()
 	    MetatableHandler.Create(typeInfo, classInstance, classMetatable)
 	    ConstructionHandler.Construct(typeInfo, instance, classInstance, classMetatable, ...)
 
-	    InstanceHandler.Add(typeInfo, classInstance)
+	    InstanceHandler.Add(typeInfo, instance)
 
 	    return instance
 	end
@@ -1160,17 +1160,19 @@ __fileFuncs__["src.Construction"] = function()
 
 	    local function constructMembers()
 	        for key, value in pairs(typeInfo.MetaMethods) do
-	            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) then
+	            if not Utils.Table.ContainsKey(Config.IndirectMetaMethods, key) and metatable[key] == nil then
 	                metatable[key] = value
 	            end
 	        end
 
 	        for key, value in pairs(typeInfo.Members) do
-	            rawset(obj, key, Utils.Value.Copy(value))
+	            if obj[key] == nil then
+	                rawset(obj, key, Utils.Value.Copy(value))
+	            end
 	        end
 
-	        metatable.__gc = function(deClass)
-	            invokeDeconstructor(typeInfo, deClass)
+	        metatable.__gc = function(class)
+	            invokeDeconstructor(typeInfo, class)
 	        end
 
 	        setmetatable(obj, metatable)
@@ -1179,13 +1181,13 @@ __fileFuncs__["src.Construction"] = function()
 	    if typeInfo.Base then
 	        if typeInfo.Base.HasConstructor then
 	            function super(...)
-	                ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable, ...)
 	                constructMembers()
+	                ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable, ...)
 	                return obj
 	            end
 	        else
-	            ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable)
 	            constructMembers()
+	            ConstructionHandler.Construct(typeInfo.Base, obj, instance, metatable)
 	        end
 	    else
 	        constructMembers()
@@ -1202,13 +1204,12 @@ __fileFuncs__["src.Construction"] = function()
 
 	---@param obj object
 	---@param metatable Freemaker.ClassSystem.Metatable
-	---@param instance Freemaker.ClassSystem.Instance
 	---@param typeInfo Freemaker.ClassSystem.Type
-	function ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
-	    InstanceHandler.Remove(typeInfo, instance)
-	    invokeDeconstructor(typeInfo, instance)
+	function ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
+	    InstanceHandler.Remove(typeInfo, obj)
+	    invokeDeconstructor(typeInfo, obj)
 
-	    Utils.Table.Clear(instance)
+	    Utils.Table.Clear(obj)
 	    Utils.Table.Clear(metatable)
 
 	    local function blockedNewIndex()
@@ -1310,10 +1311,9 @@ __fileFuncs__["__main__"] = function()
 	function ClassSystem.Deconstruct(obj)
 	    ---@type Freemaker.ClassSystem.Metatable
 	    local metatable = getmetatable(obj)
-	    local instance = metatable.Instance
 	    local typeInfo = metatable.Type
 
-	    ConstructionHandler.Deconstruct(obj, metatable, instance, typeInfo)
+	    ConstructionHandler.Deconstruct(obj, metatable, typeInfo)
 	end
 
 	ClassSystem.Typeof = ClassUtils.Class.Typeof
