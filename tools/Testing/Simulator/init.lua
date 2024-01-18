@@ -15,9 +15,9 @@ local Simulator = {}
 
 local requireFunc = require --[[@as fun(moduleName: string)]]
 function Simulator:OverrideRequire()
-	---@param moduleToGet string
-	function require(moduleToGet)
-		local result = { requireFunc("src." .. moduleToGet) }
+	---@param path string
+	function require(path)
+		local result = { requireFunc(path) }
 		if type(result[#result]) == "string" then
 			result[#result] = nil
 		end
@@ -42,9 +42,6 @@ end
 ---@param eeprom string?
 ---@return Test.Simulator
 function Simulator:Initialize(fileSystemPath, eeprom)
-	local simulatorPath = FileSystem.GetCurrentDirectory()
-	CurrentPath = simulatorPath:gsub("tools/Testing/Simulator", "")
-
 	if not fileSystemPath then
 		local info = debug.getinfo(2)
 		fileSystemPath = Path.new(info.source)

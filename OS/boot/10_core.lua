@@ -8,7 +8,10 @@ function require(path)
         return table.unpack(data)
     end
 
-    path = path .. ".lua"
+    if not filesystem.isFile(path) then
+        path = path .. ".lua"
+    end
+
     if not filesystem.isFile(path) then
         return nil
     end
@@ -19,5 +22,5 @@ function require(path)
 end
 
 ---@class Freemaker.Utils
-Utils = require("OS/misc/utils")
-Utils.Class = require("OS/misc/classSystem")
+Utils = require("/OS/misc/utils")
+Utils.Class = require("/OS/misc/classSystem")

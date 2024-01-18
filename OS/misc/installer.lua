@@ -9,6 +9,13 @@ local OSFiles = {
         "misc",
         { "utils.lua" },
         { "classSystem.lua" }
+    },
+    {
+        "System",
+        {
+            "IO",
+            { "IStream.lua" }
+        }
     }
 }
 
