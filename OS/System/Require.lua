@@ -1,21 +1,21 @@
 ---@type table<string, any[]>
 local cache = {}
 
----@class SphinxOS.System.RequireManager
+---@class SphinxOS.System.Require
 ---@field workingDirectory string
-local RequireManager = {
+local Require = {
     workingDirectory = "/"
 }
 
 ---@param path string
-function RequireManager:SetWorkingDirectory(path)
+function Require:SetWorkingDirectory(path)
     self.workingDirectory = path
 end
 
 ---@param path string
 function require(path)
     if not path:find("//") then
-        path = filesystem.path(RequireManager.workingDirectory, path:gsub("//", "/"))
+        path = filesystem.path(Require.workingDirectory, path:gsub("//", "/"))
     end
 
     local data = cache[path]
@@ -37,4 +37,4 @@ function require(path)
     return table.unpack(data)
 end
 
-return RequireManager
+return Require

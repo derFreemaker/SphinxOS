@@ -1,6 +1,6 @@
 local Buffer = require("//OS/System/IO/Buffer")
 local Stream = require("//OS/System/IO/Stream")
-local RequireManager = require("//OS/System/RequireManager")
+local Require = require("//OS/System/Require")
 
 local _process = {
     ---@type table<thread, integer>
@@ -101,7 +101,7 @@ function Process:m_prepare()
     __ENV.ENV = self.m_environment
     __ENV.Process = self
 
-    RequireManager:SetWorkingDirectory(self.m_workingDirectory)
+    Require:SetWorkingDirectory(self.m_workingDirectory)
 end
 
 ---@private
