@@ -36,6 +36,8 @@ local function foo(str)
     currentProcess.stdOut:Write("\n")
     currentProcess.stdOut:Flush()
 
+    local process = require("/System/Process")
+
     if currentProcess.ID < 5 then
         local test = Process(foo, { stdOut = testStream })
         test:Execute(str)

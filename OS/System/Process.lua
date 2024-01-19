@@ -1,6 +1,6 @@
-local Buffer = require("/OS/System/IO/Buffer")
-local Stream = require("/OS/System/IO/Stream")
-local RequireManager = require("/OS/System/RequireManager")
+local Buffer = require("//OS/System/IO/Buffer")
+local Stream = require("//OS/System/IO/Stream")
+local RequireManager = require("//OS/System/RequireManager")
 
 local _process = {
     ---@type table<thread, integer>

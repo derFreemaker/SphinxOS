@@ -12,8 +12,11 @@ function RequireManager:SetWorkingDirectory(path)
     self.workingDirectory = path
 end
 
+---@param path string
 function require(path)
-    path = filesystem.path(RequireManager.workingDirectory, path)
+    if not path:find("//") then
+        path = filesystem.path(RequireManager.workingDirectory, path:gsub("//", "/"))
+    end
 
     local data = cache[path]
     if data then
