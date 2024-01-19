@@ -1,5 +1,6 @@
 local Buffer = require("/OS/System/IO/Buffer")
 local Stream = require("/OS/System/IO/Stream")
+local RequireManager = require("/OS/System/RequireManager")
 
 local _process = {
     ---@type table<thread, integer>
@@ -31,29 +32,31 @@ local _process = {
 ---@field m_error string?
 ---@field m_traceback string?
 ---
----@overload fun(func: function, parent: (SphinxOS.System.Process | false)?, options: SphinxOS.System.Process.Options?) : SphinxOS.System.Process
+---@field m_workingDirectory string
+---
+---@overload fun(func: function, options: SphinxOS.System.Process.Options?) : SphinxOS.System.Process
 local Process = {}
 
----@alias SphinxOS.System.Process.__init fun(func: function, parent: (SphinxOS.System.Process | false)?, options: SphinxOS.System.Process.Options?)
+---@alias SphinxOS.System.Process.__init fun(func: function, options: SphinxOS.System.Process.Options?)
 
 ---@class SphinxOS.System.Process.Options
+---@field parent (SphinxOS.System.Process | false)?
+---@field workingDirectory string?
+---
 ---@field stdIn SphinxOS.System.IO.IStream?
 ---@field stdOut SphinxOS.System.IO.IStream?
 ---@field stdErr SphinxOS.System.IO.IStream?
 
 ---@private
 ---@param func function
----@param parent (SphinxOS.System.Process | false)?
 ---@param options SphinxOS.System.Process.Options?
-function Process:__init(func, parent, options)
-    if parent == nil then
-        parent = Process.Static__Running()
-    end
+function Process:__init(func, options)
     if not options then
         options = {}
     end
 
     self.ID = #_process.processes + 1
+    self.m_state = 0
 
     self.m_co = coroutine.create(
         function(...)
@@ -63,28 +66,30 @@ function Process:__init(func, parent, options)
         end
     )
 
-    if parent then
-        self.m_parent = parent
+    if options.parent == nil then
+        options.parent = Process.Static__Running()
+    end
 
-        self.m_environment = Utils.Table.Copy(parent.m_environment)
+    if options.parent then
+        self.m_parent = options.parent
 
-        options.stdIn = options.stdIn or parent.stdIn
-        options.stdOut = options.stdOut or parent.stdOut
-        options.stdErr = options.stdErr or parent.stdErr
+        self.m_environment = Utils.Table.Copy(options.parent.m_environment)
+
+        self.stdIn = options.stdIn or options.parent.stdIn
+        self.stdOut = options.stdOut or options.parent.stdOut
+        self.stdErr = options.stdErr or options.parent.stdErr
+
+        self.m_workingDirectory = options.workingDirectory or options.parent.m_workingDirectory
     else
         self.m_environment = {} --//TODO: get default environment
 
         --//TODO: replace default streams with actual streams
-        options.stdIn = options.stdIn or Stream(Buffer(), "rs")
-        options.stdOut = options.stdOut or Stream(Buffer(), "rws")
-        options.stdErr = options.stdErr or Stream(Buffer(), "w")
+        self.stdIn = options.stdIn or Stream(Buffer(), "rs")
+        self.stdOut = options.stdOut or Stream(Buffer(), "rws")
+        self.stdErr = options.stdErr or Stream(Buffer(), "w")
+
+        self.m_workingDirectory = options.workingDirectory or "/"
     end
-
-    self.m_state = 0
-
-    self.stdIn = options.stdIn
-    self.stdOut = options.stdOut
-    self.stdErr = options.stdErr
 
     _process.coToPID[self.m_co] = self.ID
     _process.processes[self.ID] = self
@@ -95,6 +100,8 @@ function Process:m_prepare()
     __ENV = {}
     __ENV.ENV = self.m_environment
     __ENV.Process = self
+
+    RequireManager:SetWorkingDirectory(self.m_workingDirectory)
 end
 
 ---@private

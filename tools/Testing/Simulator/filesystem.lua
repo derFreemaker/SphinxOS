@@ -197,11 +197,17 @@ return function(fileSystemPath)
     end
 
     ---@param path string
+    ---@return function loadedFunction
     ---@diagnostic disable-next-line
     function filesystem.loadFile(path)
         initializeFileSystem()
 
-        return loadfile(fileSystemPath:Extend(path):ToString())
+        local func, errMsg = loadfile(fileSystemPath:Extend(path):ToString())
+        if not func then
+            error(errMsg)
+        end
+
+        return func
     end
 
     ---@param path string
@@ -210,5 +216,17 @@ return function(fileSystemPath)
         initializeFileSystem()
 
         return dofile(fileSystemPath:Extend(path):ToString())
+    end
+
+    ---@param path string
+    ---@diagnostic disable-next-line
+    function filesystem.isFile(path)
+        return Path.new(path):IsFile()
+    end
+
+    ---@param path string
+    ---@diagnostic disable-next-line
+    function filesystem.isDir(path)
+        return Path.new(path):IsDir()
     end
 end

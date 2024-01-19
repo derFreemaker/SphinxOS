@@ -3,7 +3,8 @@ local OSFiles = {
     "OS",
     {
         "boot",
-        { "boot.eeprom.lua" }
+        { "boot.eeprom.lua" },
+        { "10_core.lua" }
     },
     {
         "misc",
@@ -14,8 +15,12 @@ local OSFiles = {
         "System",
         {
             "IO",
-            { "IStream.lua" }
-        }
+            { "Buffer.lua" },
+            { "IBuffer.lua" },
+            { "IStream.lua" },
+            { "Stream.lua" }
+        },
+        { "Process.lua" }
     }
 }
 

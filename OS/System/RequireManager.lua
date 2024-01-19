@@ -1,8 +1,20 @@
+---@type table<string, any[]>
 local cache = {}
 
+---@class SphinxOS.System.RequireManager
+---@field workingDirectory string
+local RequireManager = {
+    workingDirectory = "/"
+}
+
 ---@param path string
----@return any ...
+function RequireManager:SetWorkingDirectory(path)
+    self.workingDirectory = path
+end
+
 function require(path)
+    path = filesystem.path(RequireManager.workingDirectory, path)
+
     local data = cache[path]
     if data then
         return table.unpack(data)
@@ -18,11 +30,8 @@ function require(path)
 
     data = { filesystem.loadFile(path)() }
     cache[path] = cache
+
     return table.unpack(data)
 end
 
----@class Freemaker.Utils
-Utils = require("/OS/misc/utils")
-Utils.Class = require("/OS/misc/classSystem")
-
-local Process = require("/OS/System/Process")
+return RequireManager

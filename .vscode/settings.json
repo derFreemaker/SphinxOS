@@ -5,5 +5,8 @@
         "docu/tools",
         "**/Sim-Files",
         "**/Freemaker/src"
+    ],
+    "Lua.diagnostics.disable": [
+        "different-requires"
     ]
 }

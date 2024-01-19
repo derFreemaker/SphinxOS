@@ -19,6 +19,7 @@ local Stream = {}
 ---|"ws" write & seek
 ---|>"rws" read & write & seek
 
+---@private
 ---@param buffer SphinxOS.System.IO.IBuffer
 ---@param mode SphinxOS.System.IO.Stream.Mode?
 function Stream:__init(buffer, mode)
@@ -51,6 +52,7 @@ function Stream:__init(buffer, mode)
     end
 end
 
+---@private
 function Stream:__gc()
     self:Close()
 end

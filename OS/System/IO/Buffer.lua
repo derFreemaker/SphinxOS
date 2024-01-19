@@ -6,6 +6,7 @@ local Buffer = {}
 
 ---@alias SphinxOS.System.IO.Buffer.__init fun(str: string?)
 
+---@private
 ---@param str string?
 function Buffer:__init(str)
     self.m_buffer = str or ""

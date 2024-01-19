@@ -38,19 +38,20 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	self:OverrideRequire()
 end
 
----@param fileSystemPath string?
+---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
 ---@param eeprom string?
 ---@return Test.Simulator
 function Simulator:Initialize(fileSystemPath, eeprom)
-	if not fileSystemPath then
+	if fileSystemPath == nil then
 		local info = debug.getinfo(2)
 		fileSystemPath = Path.new(info.source)
 			:GetParentFolderPath()
 			:Append("Sim-Files")
-			:ToString()
+	elseif type(fileSystemPath) == "string" then
+		fileSystemPath = Path.new(fileSystemPath)
 	end
 
-	self:prepare(Path.new(fileSystemPath), eeprom or "")
+	self:prepare(fileSystemPath, eeprom or "")
 
 	return self
 end
