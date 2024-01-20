@@ -8,5 +8,46 @@
     ],
     "Lua.diagnostics.disable": [
         "different-requires"
-    ]
+    ],
+    "logFileHighlighter.customPatterns": [
+		{
+			"pattern": ".*\\[Log\\] ->.*",
+			"foreground": "#1fffcb",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Trace\\]:.*",
+			"foreground": "#969595",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Debug\\]:.*",
+			"foreground": "#f8a632",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Info\\]:.*",
+			"foreground": "#195eff",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Warning\\]:.*",
+			"foreground": "#ffe921",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Error\\]:.*",
+			"foreground": "#ff0000",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": ".*\\[Fatal\\]:.*",
+			"foreground": "#c400b7",
+			"letterSpacing": "1.2px"
+		},
+		{
+			"pattern": "\\[TASK START\\]",
+			"foreground": "#0da00d"
+		}
+	],
 }

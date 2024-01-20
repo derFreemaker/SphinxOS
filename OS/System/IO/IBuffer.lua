@@ -1,28 +1,28 @@
 ---@class SphinxOS.System.IO.IBuffer : object
-local IBuffer = {}
+local IStringBuffer = {}
 
 ---@return integer
-function IBuffer:Length()
+function IStringBuffer:Length()
     error("not implemented")
 end
 
 ---@param str string
-function IBuffer:Write(str)
+function IStringBuffer:Write(str)
     error("not implemented")
 end
 
 ---@param startPos integer?
 ---@param endPos integer?
 ---@return string
-function IBuffer:Read(startPos, endPos)
+function IStringBuffer:Read(startPos, endPos)
     error("not implemented")
 end
 
 ---@param startPos integer?
 ---@param withLineEnding boolean?
 ---@return string
-function IBuffer:ReadLine(startPos, withLineEnding)
+function IStringBuffer:ReadLine(startPos, withLineEnding)
     error("not implemented")
 end
 
-return Utils.Class.Create(IBuffer, "SphinxOS.System.IO.IBuffer", nil, { IsAbstract = true })
+return Utils.Class.Create(IStringBuffer, "SphinxOS.System.IO.IBuffer", nil, { IsAbstract = true })

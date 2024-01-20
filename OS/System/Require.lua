@@ -1,5 +1,5 @@
 ---@class SphinxOS.System.Require
----@field package workingDirectory string
+---@field package workingDirectory string?
 ---@field package cache table<string, any[]>
 ---@field Searchers (fun(path: string) : string)[]
 local Require = {
@@ -12,7 +12,8 @@ Require.cache["/OS/System/Require.lua"] = { Require }
 ---@param path string?
 function Require.SetWorkingDirectory(path)
     if not path or path == "/" then
-        path = ""
+        Require.workingDirectory = nil
+        return
     end
 
     Require.workingDirectory = filesystem.path(path)
@@ -20,7 +21,7 @@ end
 
 ---@param path string
 function require(path)
-    if path:find("//") ~= 1 then
+    if Require.workingDirectory and path:find("//") ~= 1 then
         path = Require.workingDirectory .. path
     end
     path = path:gsub("//", "/")

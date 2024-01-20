@@ -1,27 +1,24 @@
 local FileSystem = require("tools.Freemaker.bin.filesystem")
 local Path = require("tools.Freemaker.bin.path")
-
 local CurrentPath = Path.new(FileSystem.GetCurrentDirectory())
     :GetParentFolderPath()
     :GetParentFolderPath()
-
 local Sim = require('tools.Testing.Simulator'):Initialize(CurrentPath)
-
----@diagnostic disable
-Utils = require("/OS/misc/utils")
-Utils.Class = require("/OS/misc/classSystem")
----@diagnostic enable
 
 local Buffer = require("/OS/System/IO/Buffer")
 local Stream = require("/OS/System/IO/Stream")
 local ConsoleInStreamAdapter = require("/tools/Testing/Adapter/ConsoleInStreamAdapter")
 
-local Process = require("/OS/System/Process")
+local Environment = require("/OS/System/Threading/Environment")
+local Process = require("/OS/System/Threading/Process")
+local Task = require("/OS/System/Threading/Task")
 
 local testBuffer = Buffer()
 local testStream = Stream(testBuffer)
 
-local function foo(str)
+---@param str string
+---@param task SphinxOS.System.Threading.Task?
+local function foo(str, task)
     local currentProcess = Process.Static__Running()
 
     currentProcess.stdOut:Write("id: '" .. currentProcess.ID .. "' data: '" .. str .. "'")
@@ -35,11 +32,18 @@ local function foo(str)
     currentProcess.stdOut:Write("\n")
     currentProcess.stdOut:Flush()
 
-    local process = require("/System/Process")
+    if task then
+        task:Execute()
+        print(Environment.Static__Current().workingDirectory)
+    end
 
-    if currentProcess.ID < 5 then
-        local test = process(foo, { stdOut = testStream })
-        test:Execute(str)
+    local process = require("/System/Threading/Process")
+
+    if currentProcess.ID < 9 then
+        local test = process(foo, {
+            stdOut = testStream
+        })
+        test:Execute(str, task)
 
         if not test:IsSuccess() then
             print("error in process PID: " .. test.ID)
@@ -48,8 +52,19 @@ local function foo(str)
     end
 end
 
-local test = Process(foo, { parent = false, stdOut = ConsoleInStreamAdapter(), workingDirectory = "/OS" })
-test:Execute("Hi")
+local testTask = Task(
+    function()
+        print(Environment.Static__Current().workingDirectory or "/")
+    end
+)
+
+local test = Process(foo, {
+    stdOut = ConsoleInStreamAdapter(),
+    environment = {
+        workingDirectory = "/OS"
+    }
+})
+test:Execute("Hi", testTask)
 
 if not test:IsSuccess() then
     print(test:Traceback())

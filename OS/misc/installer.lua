@@ -4,24 +4,42 @@ local OSFiles = {
     {
         "boot",
         { "boot.eeprom.lua" },
-        { "10_core.lua" }
+        { "10_core.lua" },
+        { "100_environment.lua" },
+        { "200_start.lua" },
     },
     {
         "misc",
         { "utils.lua" },
-        { "classSystem.lua" }
+        { "classSystem.lua" },
     },
     {
         "System",
+        {
+            "Event",
+            { "EventHandler.lua" },
+            { "init.lua" },
+        },
+        {
+            "FileSystem",
+            { "Path.lua" },
+        },
         {
             "IO",
             { "Buffer.lua" },
             { "IBuffer.lua" },
             { "IStream.lua" },
-            { "Stream.lua" }
+            { "Stream.lua" },
         },
-        { "Process.lua" }
-    }
+        {
+            "Threading",
+            { "Environment.lua" },
+            { "Process.lua" },
+            { "Task.lua" },
+        },
+        { "Process.lua" },
+        { "Require.lua" },
+    },
 }
 
 ---@class SphinxOS.Installer.FileTreeTools
@@ -86,7 +104,7 @@ end
 ---@param internetCard FIN.Components.InternetCard_C
 ---@return fun() : integer, string?
 local function startDownloadRequest(url, internetCard)
-    local req = internetCard:request(url, 'GET', '')
+    local req = internetCard:request(url, "GET", "")
 
     return function()
         repeat

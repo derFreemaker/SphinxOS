@@ -12,8 +12,27 @@ local loadEvent = require("tools.Testing.Simulator.event")
 local Simulator = {}
 
 ---@private
-function Simulator:setupRequire()
+local function setupRequire()
 	filesystem.doFile("/OS/System/Require.lua")
+end
+
+local function setupUtils()
+	Utils = require("/OS/misc/utils")
+	Utils.Class = require("/OS/misc/classSystem")
+end
+
+local function setupMainProcess()
+	local environment = require("//OS/System/Threading/Environment")
+	environment.Static__Default = function()
+		return environment()
+	end
+
+	local consoleInStreamAdapter = require("//tools/Testing/Adapter/ConsoleInStreamAdapter")
+	local process = require("//OS/System/Threading/Process")
+
+	---@diagnostic disable-next-line
+	local main = process(nil, { parent = false, stdOut = consoleInStreamAdapter() })
+	main:Prepare()
 end
 
 ---@private
@@ -25,8 +44,9 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	loadFileSystem(fileSystemPath)
 	loadComponent()
 	loadEvent()
-
-	self:setupRequire()
+	setupRequire()
+	setupUtils()
+	setupMainProcess()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?

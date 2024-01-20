@@ -1,27 +1,24 @@
 local Buffer = require("//OS/System/IO/Buffer")
 local Stream = require("//OS/System/IO/Stream")
-local Require = require("//OS/System/Require")
 
-local _process = {
-    ---@type table<thread, integer>
-    coToPID = {},
-    ---@type table<integer, SphinxOS.System.Process>
-    processes = {}
-}
+local Environment = require("//OS/System/Threading/Environment")
 
----@alias SphinxOS.System.Process.State
+---@type table<integer, SphinxOS.System.Threading.Process>
+local _processes = {}
+
+---@alias SphinxOS.System.Threading.Process.State
 ---|0 waiting
 ---|10 running
 ---|50 finished
 ---|100 dead
 
----@class SphinxOS.System.Process : object
+---@class SphinxOS.System.Threading.Process : object
 ---@field ID integer
 ---@field m_co thread
 ---
----@field m_environment table<string, string>
----@field m_parent SphinxOS.System.Process?
----@field m_state SphinxOS.System.Process.State
+---@field m_environment SphinxOS.System.Threading.Environment
+---@field m_parent SphinxOS.System.Threading.Process?
+---@field m_state SphinxOS.System.Threading.Process.State
 ---
 ---@field stdIn SphinxOS.System.IO.IStream
 ---@field stdOut SphinxOS.System.IO.IStream
@@ -32,16 +29,14 @@ local _process = {
 ---@field m_error string?
 ---@field m_traceback string?
 ---
----@field m_workingDirectory string
----
----@overload fun(func: function, options: SphinxOS.System.Process.Options?) : SphinxOS.System.Process
+---@overload fun(func: function, options: SphinxOS.System.Threading.Process.Options?) : SphinxOS.System.Threading.Process
 local Process = {}
 
----@alias SphinxOS.System.Process.__init fun(func: function, options: SphinxOS.System.Process.Options?)
+---@alias SphinxOS.System.Threading.Process.__init fun(func: function, options: SphinxOS.System.Threading.Process.Options?)
 
----@class SphinxOS.System.Process.Options
----@field parent (SphinxOS.System.Process | false)?
----@field workingDirectory string?
+---@class SphinxOS.System.Threading.Process.Options
+---@field parent (SphinxOS.System.Threading.Process | false)?
+---@field environment SphinxOS.System.Threading.Environment.Options?
 ---
 ---@field stdIn SphinxOS.System.IO.IStream?
 ---@field stdOut SphinxOS.System.IO.IStream?
@@ -49,13 +44,13 @@ local Process = {}
 
 ---@private
 ---@param func function
----@param options SphinxOS.System.Process.Options?
+---@param options SphinxOS.System.Threading.Process.Options?
 function Process:__init(func, options)
     if not options then
         options = {}
     end
 
-    self.ID = #_process.processes + 1
+    self.ID = #_processes + 1
     self.m_state = 0
 
     self.m_co = coroutine.create(
@@ -73,43 +68,43 @@ function Process:__init(func, options)
     if options.parent then
         self.m_parent = options.parent
 
-        self.m_environment = Utils.Table.Copy(options.parent.m_environment)
-
         self.stdIn = options.stdIn or options.parent.stdIn
         self.stdOut = options.stdOut or options.parent.stdOut
         self.stdErr = options.stdErr or options.parent.stdErr
 
-        self.m_workingDirectory = options.workingDirectory or options.parent.m_workingDirectory
+        if options.environment then
+            self.m_environment = Environment(options.environment)
+        else
+            self.m_environment = options.parent.m_environment
+        end
     else
-        self.m_environment = {} --//TODO: get default environment
+        if options.environment then
+            self.m_environment = Environment(options.environment)
+        else
+            self.m_environment = Environment.Static__Default()
+        end
 
         self.stdIn = options.stdIn or Stream(Buffer(), "rs")
         self.stdOut = options.stdOut or Stream(Buffer(), "rws")
         self.stdErr = options.stdErr or Stream(Buffer(), "w")
-
-        self.m_workingDirectory = options.workingDirectory or "/"
     end
 
-    _process.coToPID[self.m_co] = self.ID
-    _process.processes[self.ID] = self
+    _processes[self.ID] = self
 end
 
----@private
-function Process:m_prepare()
-    __ENV = {}
-    __ENV.ENV = self.m_environment
+function Process:Prepare()
+    self.m_environment:Prepare()
+
     __ENV.Process = self
-
-    Require.SetWorkingDirectory(self.m_workingDirectory)
 end
 
----@private
-function Process:m_cleanup()
+function Process:Cleanup()
+    self.m_environment:Revert()
+
     if self.m_parent then
-        self.m_parent:m_prepare()
+        self.m_parent:Prepare()
     else
         __ENV.Process = nil
-        Require.SetWorkingDirectory()
     end
 end
 
@@ -146,10 +141,10 @@ function Process:Execute(...)
         error("cannot execute dead, finished or running process")
     end
 
-    self:m_prepare()
+    self:Prepare()
     self.m_state = 10
     self.m_success, self.m_results = retrieveValues(coroutine.resume(self.m_co, ...))
-    self:m_cleanup()
+    self:Cleanup()
 
     if self.m_state == 10 then
         self.m_state = 0
@@ -196,15 +191,15 @@ function Process:Traceback()
     return self.m_traceback
 end
 
----@return SphinxOS.System.Process
+---@return SphinxOS.System.Threading.Process
 function Process.Static__Running()
     return __ENV.Process
 end
 
 ---@param id integer
----@return SphinxOS.System.Process?
+---@return SphinxOS.System.Threading.Process?
 function Process.Static__GetProcess(id)
-    return _process.processes[id]
+    return _processes[id]
 end
 
-return Utils.Class.Create(Process, "SphinxOS.Core.Process")
+return Utils.Class.Create(Process, "SphinxOS.System.Threading.Process")
