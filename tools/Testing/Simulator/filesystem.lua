@@ -221,12 +221,14 @@ return function(fileSystemPath)
     ---@param path string
     ---@diagnostic disable-next-line
     function filesystem.isFile(path)
-        return Path.new(path):IsFile()
+        local pathObj = fileSystemPath:Extend(path)
+        return pathObj:Exists() and pathObj:IsFile()
     end
 
     ---@param path string
     ---@diagnostic disable-next-line
     function filesystem.isDir(path)
-        return Path.new(path):IsDir()
+        local pathObj = fileSystemPath:Extend(path)
+        return pathObj:Exists() and pathObj:IsDir()
     end
 end

@@ -1,4 +1,4 @@
-local FileSystem = require("tools.Freemaker.bin.filesystem")
+-- local FileSystem = require("tools.Freemaker.bin.filesystem")
 local Path = require("tools.Freemaker.bin.path")
 
 local loadClassesAndStructs = require("tools.Testing.Simulator.classes&structs")
@@ -7,22 +7,13 @@ local loadComputer = require("tools.Testing.Simulator.computer")
 local loadComponent = require("tools.Testing.Simulator.component")
 local loadEvent = require("tools.Testing.Simulator.event")
 
-local CurrentPath = ''
-
 ---@class Test.Simulator
 ---@field private m_loadedLoaderFiles table<string, any[]>
 local Simulator = {}
 
-local requireFunc = require --[[@as fun(moduleName: string)]]
-function Simulator:OverrideRequire()
-	---@param path string
-	function require(path)
-		local result = { requireFunc(path) }
-		if type(result[#result]) == "string" then
-			result[#result] = nil
-		end
-		return table.unpack(result)
-	end
+---@private
+function Simulator:setupRequire()
+	filesystem.doFile("/OS/System/Require.lua")
 end
 
 ---@private
@@ -35,7 +26,7 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	loadComponent()
 	loadEvent()
 
-	self:OverrideRequire()
+	self:setupRequire()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?

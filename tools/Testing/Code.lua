@@ -6,7 +6,6 @@ local CurrentPath = Path.new(FileSystem.GetCurrentDirectory())
     :GetParentFolderPath()
 
 local Sim = require('tools.Testing.Simulator'):Initialize(CurrentPath)
-Sim:OverrideRequire()
 
 ---@diagnostic disable
 Utils = require("/OS/misc/utils")
@@ -39,8 +38,13 @@ local function foo(str)
     local process = require("/System/Process")
 
     if currentProcess.ID < 5 then
-        local test = Process(foo, { stdOut = testStream })
+        local test = process(foo, { stdOut = testStream })
         test:Execute(str)
+
+        if not test:IsSuccess() then
+            print("error in process PID: " .. test.ID)
+            print(test:Traceback())
+        end
     end
 end
 
@@ -58,5 +62,7 @@ end
 print("buffer:")
 io.stdout:write(testBuffer:Read())
 io.stdout:flush()
+
+print(require("/OS/System/Event"))
 
 print("### END ###")

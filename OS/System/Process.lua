@@ -83,7 +83,6 @@ function Process:__init(func, options)
     else
         self.m_environment = {} --//TODO: get default environment
 
-        --//TODO: replace default streams with actual streams
         self.stdIn = options.stdIn or Stream(Buffer(), "rs")
         self.stdOut = options.stdOut or Stream(Buffer(), "rws")
         self.stdErr = options.stdErr or Stream(Buffer(), "w")
@@ -101,7 +100,7 @@ function Process:m_prepare()
     __ENV.ENV = self.m_environment
     __ENV.Process = self
 
-    Require:SetWorkingDirectory(self.m_workingDirectory)
+    Require.SetWorkingDirectory(self.m_workingDirectory)
 end
 
 ---@private
@@ -110,6 +109,7 @@ function Process:m_cleanup()
         self.m_parent:m_prepare()
     else
         __ENV.Process = nil
+        Require.SetWorkingDirectory()
     end
 end
 

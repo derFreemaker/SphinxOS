@@ -211,6 +211,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		__fileFuncs__["src.Utils.String"] = function()
 		---@class Freemaker.Utils.String
 		local String = {}
+
 		---@param str string
 		---@param pattern string
 		---@param plain boolean?
@@ -222,6 +223,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return str:sub(0, found - 1), found - 1
 		end
+
 		---@param str string?
 		---@param sep string?
 		---@param plain boolean?
@@ -230,27 +232,33 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    if str == nil then
 		        return {}
 		    end
+
 		    local strLen = str:len()
 		    local sepLen
+
 		    if sep == nil then
 		        sep = "%s"
 		        sepLen = 2
 		    else
 		        sepLen = sep:len()
 		    end
+
 		    local tbl = {}
 		    local i = 0
 		    while true do
 		        i = i + 1
 		        local foundStr, foundPos = findNext(str, sep, plain)
+
 		        if foundStr == nil then
 		            tbl[i] = str
 		            return tbl
 		        end
+
 		        tbl[i] = foundStr
 		        str = str:sub(foundPos + sepLen + 1, strLen)
 		    end
 		end
+
 		---@param str string?
 		---@return boolean
 		function String.IsNilOrEmpty(str)
@@ -262,49 +270,61 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return false
 		end
+
 		---@param array string[]
 		---@param sep string
 		---@return string
 		function String.Join(array, sep)
 		    local str = ""
+
 		    str = array[1]
 		    for _, value in next, array, 1 do
 		        str = str .. sep .. value
 		    end
+
 		    return str
 		end
+
 		return String
+
 	end
 
 	__fileFuncs__["src.Utils.Table"] = function()
 		---@class Freemaker.Utils.Table
 		local Table = {}
+
 		---@param obj table?
 		---@param seen table[]
 		---@return table?
 		local function copyTable(obj, copy, seen)
 		    if obj == nil then return nil end
 		    if seen[obj] then return seen[obj] end
+
 		    seen[obj] = copy
 		    setmetatable(copy, copyTable(getmetatable(obj), {}, seen))
+
 		    for key, value in next, obj, nil do
 		        key = (type(key) == "table") and copyTable(key, {}, seen) or key
 		        value = (type(value) == "table") and copyTable(value, {}, seen) or value
 		        rawset(copy, key, value)
 		    end
+
 		    return copy
 		end
+
 		---@generic TTable
 		---@param t TTable
 		---@return TTable table
 		function Table.Copy(t)
 		    return copyTable(t, {}, {})
 		end
+
 		---@param from table
 		---@param to table
 		function Table.CopyTo(from, to)
 		    copyTable(from, to, {})
 		end
+
 		---@param t table
 		---@param ignoreProperties string[]?
 		function Table.Clear(t, ignoreProperties)
@@ -318,6 +338,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    setmetatable(t, nil)
 		end
+
 		---@param t table
 		---@param value any
 		---@return boolean
@@ -329,6 +350,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return false
 		end
+
 		---@param t table
 		---@param key any
 		---@return boolean
@@ -338,6 +360,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return false
 		end
+
 		--- removes all spaces between
 		---@param t any[]
 		function Table.Clean(t)
@@ -353,6 +376,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		        end
 		    end
 		end
+
 		---@param t table
 		---@return integer count
 		function Table.Count(t)
@@ -362,6 +386,7 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return count
 		end
+
 		---@param t table
 		---@return table
 		function Table.Invert(t)
@@ -371,24 +396,32 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		    end
 		    return inverted
 		end
+
 		return Table
+
 	end
 
 	__fileFuncs__["src.Utils.Value"] = function()
 		local Table = __loadFile__("src.Utils.Table")
+
 		---@class Freemaker.Utils.Value
 		local Value = {}
+
 		---@generic T
 		---@param value T
 		---@return T
 		function Value.Copy(value)
 		    local typeStr = type(value)
+
 		    if typeStr == "table" then
 		        return Table.Copy(value)
 		    end
+
 		    return value
 		end
+
 		return Value
+
 	end
 
 	__fileFuncs__["__main__"] = function()
@@ -397,10 +430,13 @@ __fileFuncs__["tools.Freemaker.bin.utils"] = function()
 		---@field Table Freemaker.Utils.Table
 		---@field Value Freemaker.Utils.Value
 		local Utils = {}
+
 		Utils.String = __loadFile__("src.Utils.String")
 		Utils.Table = __loadFile__("src.Utils.Table")
 		Utils.Value = __loadFile__("src.Utils.Value")
+
 		return Utils
+
 	end
 
 	---@type Freemaker.Utils
@@ -1062,7 +1098,7 @@ __fileFuncs__["src.Metatable"] = function()
 	    end
 
 	    metatable.__tostring = function()
-	        return typeInfo.Name .. ".Blueprint"
+	        return typeInfo.Name .. ".__Blueprint__"
 	    end
 
 	    return metatable
