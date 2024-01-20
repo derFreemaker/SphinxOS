@@ -22,13 +22,13 @@ local function setupUtils()
 end
 
 local function setupMainProcess()
-	local environment = require("//OS/System/Threading/Environment")
+	local environment = require("/OS/System/Threading/Environment")
 	environment.Static__Default = function()
 		return environment()
 	end
 
-	local consoleInStreamAdapter = require("//tools/Testing/Adapter/ConsoleInStreamAdapter")
-	local process = require("//OS/System/Threading/Process")
+	local consoleInStreamAdapter = require("/tools/Testing/Adapter/ConsoleOutStreamAdapter")
+	local process = require("/OS/System/Threading/Process")
 
 	---@diagnostic disable-next-line
 	local main = process(nil, { parent = false, stdOut = consoleInStreamAdapter() })

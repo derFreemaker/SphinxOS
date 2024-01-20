@@ -41,13 +41,13 @@ function Environment:__init(options)
 end
 
 function Environment:Prepare()
-    __ENV.ENV = self
-    Require.SetWorkingDirectory(self.workingDirectory)
-
     if Environment.Static__Current() ~= self then
         self.deleteOnRevert = true
         _history[#_history + 1] = self
     end
+
+    __ENV.ENV = self
+    Require.SetWorkingDirectory(self.workingDirectory)
 end
 
 function Environment:Revert()

@@ -7,7 +7,7 @@ local Sim = require('tools.Testing.Simulator'):Initialize(CurrentPath)
 
 local Buffer = require("/OS/System/IO/Buffer")
 local Stream = require("/OS/System/IO/Stream")
-local ConsoleInStreamAdapter = require("/tools/Testing/Adapter/ConsoleInStreamAdapter")
+local ConsoleOutStreamAdapter = require("/tools/Testing/Adapter/ConsoleOutStreamAdapter")
 
 local Environment = require("/OS/System/Threading/Environment")
 local Process = require("/OS/System/Threading/Process")
@@ -59,7 +59,7 @@ local testTask = Task(
 )
 
 local test = Process(foo, {
-    stdOut = ConsoleInStreamAdapter(),
+    stdOut = ConsoleOutStreamAdapter(),
     environment = {
         workingDirectory = "/OS"
     }
