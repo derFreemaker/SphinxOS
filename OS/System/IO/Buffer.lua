@@ -42,4 +42,6 @@ function Buffer:ReadLine(startPos, withLineEnding)
     return self.m_buffer:sub(startPos, eol)
 end
 
-return Utils.Class.Create(Buffer, "SphinxOS.System.IO.Buffer", require("//OS/System/IO/IBuffer"))
+return Utils.Class.Create(Buffer, "SphinxOS.System.IO.Buffer", {
+    BaseClass = require("//OS/System/IO/IBuffer")
+})

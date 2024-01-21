@@ -32,4 +32,4 @@ function IReference:Check()
     return self:Get() == nil
 end
 
-return Utils.Class.Create(IReference, "SphinxOS.System.References.IReference", nil, { IsAbstract = true })
+return Utils.Class.Create(IReference, "SphinxOS.System.References.IReference", { IsAbstract = true })

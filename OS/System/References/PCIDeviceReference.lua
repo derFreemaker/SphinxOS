@@ -19,5 +19,6 @@ function PCIDeviceReference:Fetch()
     return obj ~= nil
 end
 
-return Utils.Class.Create(PCIDeviceReference, "SphinxOS.System.References.PCIDeviceReference",
-    require("//OS/System/References/IReference"))
+return Utils.Class.Create(PCIDeviceReference, "SphinxOS.System.References.PCIDeviceReference", {
+    BaseClass = require("//OS/System/References/IReference")
+})

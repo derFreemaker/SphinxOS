@@ -25,4 +25,4 @@ function IStringBuffer:ReadLine(startPos, withLineEnding)
     error("not implemented")
 end
 
-return Utils.Class.Create(IStringBuffer, "SphinxOS.System.IO.IBuffer", nil, { IsAbstract = true })
+return Utils.Class.Create(IStringBuffer, "SphinxOS.System.IO.IBuffer", { IsAbstract = true })

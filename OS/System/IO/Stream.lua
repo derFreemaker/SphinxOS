@@ -142,4 +142,6 @@ function Stream:SetFromEnd(offset)
     self.m_position = self.m_position + offset
 end
 
-return Utils.Class.Create(Stream, "SphinxOS.System.IO.Stream", require("//OS/System/IO/IStream"))
+return Utils.Class.Create(Stream, "SphinxOS.System.IO.Stream", {
+    BaseClass = require("//OS/System/IO/IStream")
+})

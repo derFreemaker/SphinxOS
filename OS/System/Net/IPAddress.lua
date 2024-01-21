@@ -43,4 +43,6 @@ function IPAddress:Serialize()
     return self.m_address
 end
 
-return Utils.Class.Create(IPAddress, "SphinxOS.System.Net.IPAddress", require("//OS/System/Json/Serializable"))
+return Utils.Class.Create(IPAddress, "SphinxOS.System.Net.IPAddress", {
+    BaseClass = require("//OS/System/Json/Serializable")
+})

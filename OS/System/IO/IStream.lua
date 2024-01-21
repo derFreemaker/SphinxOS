@@ -183,4 +183,4 @@ function IStream:Seek(mode, offset)
     return self:GetPosition()
 end
 
-return Utils.Class.Create(IStream, "SphinxOS.System.IO.IStream", nil, { IsAbstract = true })
+return Utils.Class.Create(IStream, "SphinxOS.System.IO.IStream", { IsAbstract = true })

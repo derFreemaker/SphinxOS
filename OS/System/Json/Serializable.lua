@@ -21,4 +21,4 @@ function Serializable.Static__Deserialize(obj, ...)
     return obj(...)
 end
 
-return Utils.Class.Create(Serializable, "SphinxOS.System.Json.Serializable", nil, { IsAbstract = true })
+return Utils.Class.Create(Serializable, "SphinxOS.System.Json.Serializable", { IsAbstract = true })

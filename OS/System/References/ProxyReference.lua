@@ -15,5 +15,6 @@ function ProxyReference:Fetch()
     return obj ~= nil
 end
 
-return Utils.Class.Create(ProxyReference, "SphinxOS.System.References.ProxyReference",
-    require("//OS/System/References/IReference"))
+return Utils.Class.Create(ProxyReference, "SphinxOS.System.References.ProxyReference", {
+    BaseClass = require("//OS/System/References/IReference")
+})
