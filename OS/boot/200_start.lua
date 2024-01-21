@@ -6,4 +6,17 @@ local function main()
     --//TODO: start up terminal
 end
 
-local mainProcess = Process(main, { parent = false, workingDirectory = "/" })
+local mainProcess = Process(main, {
+    parent = false,
+    environment = {
+        workingDirectory = "/",
+    },
+})
+mainProcess:Prepare()
+local code = mainProcess:Execute()
+
+if mainProcess:IsSuccess() then
+    print("OS shutdown with code: " .. code)
+else
+    print(mainProcess:GetError())
+end

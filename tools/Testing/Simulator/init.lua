@@ -21,23 +21,26 @@ local function setupUtils()
 	Utils.Class = require("/OS/misc/classSystem")
 end
 
+---@return SphinxOS.System.Threading.Process
 local function setupMainProcess()
 	local environment = require("/OS/System/Threading/Environment")
 	environment.Static__Default = function()
 		return environment()
 	end
 
-	local consoleInStreamAdapter = require("/tools/Testing/Adapter/ConsoleOutStreamAdapter")
+	local consoleOutStreamAdapter = require("/tools/Testing/Adapter/ConsoleOutStreamAdapter")
 	local process = require("/OS/System/Threading/Process")
 
 	---@diagnostic disable-next-line
-	local main = process(nil, { parent = false, stdOut = consoleInStreamAdapter() })
+	main = process(nil, { parent = false, stdOut = consoleOutStreamAdapter() })
 	main:Prepare()
+	return main
 end
 
 ---@private
 ---@param fileSystemPath Freemaker.FileSystem.Path
 ---@param eeprom string
+---@return SphinxOS.System.Threading.Process
 function Simulator:prepare(fileSystemPath, eeprom)
 	loadClassesAndStructs()
 	loadComputer(eeprom)
@@ -46,12 +49,12 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	loadEvent()
 	setupRequire()
 	setupUtils()
-	setupMainProcess()
+	return setupMainProcess()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
 ---@param eeprom string?
----@return Test.Simulator
+---@return Test.Simulator, SphinxOS.System.Threading.Process
 function Simulator:Initialize(fileSystemPath, eeprom)
 	if fileSystemPath == nil then
 		local info = debug.getinfo(2)
@@ -62,9 +65,9 @@ function Simulator:Initialize(fileSystemPath, eeprom)
 		fileSystemPath = Path.new(fileSystemPath)
 	end
 
-	self:prepare(fileSystemPath, eeprom or "")
+	local mainProcess = self:prepare(fileSystemPath, eeprom or "")
 
-	return self
+	return self, mainProcess
 end
 
 return Simulator

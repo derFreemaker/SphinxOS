@@ -3,10 +3,11 @@ local OSFiles = {
     "OS",
     {
         "boot",
-        { "boot.eeprom.lua" },
         { "10_core.lua" },
+        { "20_utils.lua" },
         { "100_environment.lua" },
         { "200_start.lua" },
+        { "boot.eeprom.lua" },
     },
     {
         "misc",

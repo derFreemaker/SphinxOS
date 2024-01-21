@@ -13,8 +13,6 @@ local _history = {}
 ---@field workingDirectory string?
 
 ---@class SphinxOS.System.Threading.Environment : object
----@field deleteOnRevert boolean
----
 ---@field variables table<string, string>
 ---@field workingDirectory string
 ---@overload fun(options: SphinxOS.System.Threading.Environment.Options?) : SphinxOS.System.Threading.Environment
@@ -36,15 +34,10 @@ function Environment:__init(options)
     self.variables = options.variables or {}
 
     self.workingDirectory = options.workingDirectory or "/"
-
-    self.deleteOnRevert = false
 end
 
 function Environment:Prepare()
-    if Environment.Static__Current() ~= self then
-        self.deleteOnRevert = true
-        _history[#_history + 1] = self
-    end
+    _history[#_history + 1] = self
 
     __ENV.ENV = self
     Require.SetWorkingDirectory(self.workingDirectory)
@@ -53,13 +46,12 @@ end
 function Environment:Revert()
     __ENV.ENV = nil
     Require.SetWorkingDirectory()
+    self.m_prepared = false
 
-    if self.deleteOnRevert then
-        _history[#_history] = nil
-        local oldEnv = _history[#_history]
-        if oldEnv then
-            oldEnv:Prepare()
-        end
+    _history[#_history] = nil
+    local oldEnv = _history[#_history]
+    if oldEnv then
+        oldEnv:Prepare()
     end
 end
 
