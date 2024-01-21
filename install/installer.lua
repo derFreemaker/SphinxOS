@@ -1,48 +1,3 @@
--- //TODO: hold up-to date
-local OSFiles = {
-    "OS",
-    {
-        "boot",
-        { "10_core.lua" },
-        { "20_utils.lua" },
-        { "100_environment.lua" },
-        { "200_start.lua" },
-        { "boot.eeprom.lua" },
-    },
-    {
-        "misc",
-        { "utils.lua" },
-        { "classSystem.lua" },
-    },
-    {
-        "System",
-        {
-            "Event",
-            { "EventHandler.lua" },
-            { "init.lua" },
-        },
-        {
-            "FileSystem",
-            { "Path.lua" },
-        },
-        {
-            "IO",
-            { "Buffer.lua" },
-            { "IBuffer.lua" },
-            { "IStream.lua" },
-            { "Stream.lua" },
-        },
-        {
-            "Threading",
-            { "Environment.lua" },
-            { "Process.lua" },
-            { "Task.lua" },
-        },
-        { "Process.lua" },
-        { "Require.lua" },
-    },
-}
-
 ---@class SphinxOS.Installer.FileTreeTools
 ---@field m_fileFunc fun(path: string) : boolean
 ---@field m_folderFunc fun(path: string) : boolean
@@ -119,14 +74,16 @@ end
 ---@field m_basePath string
 ---@field m_bootPath string
 ---@field m_internetCard FIN.Components.InternetCard_C
+---@field m_installFiles table
 local Installer = {}
 
 ---@param baseUrl string
 ---@param basePath string
 ---@param bootPath string
 ---@param internetCard FIN.Components.InternetCard_C
+---@param installFiles table
 ---@return SphinxOS.Installer
-function Installer.new(baseUrl, basePath, bootPath, internetCard)
+function Installer.new(baseUrl, basePath, bootPath, internetCard, installFiles)
     -- //WARN: computer.promote used
     computer.promote()
 
@@ -135,6 +92,7 @@ function Installer.new(baseUrl, basePath, bootPath, internetCard)
         m_basePath = basePath,
         m_bootPath = bootPath,
         m_internetCard = internetCard,
+        m_installFiles = installFiles
     }, { __index = Installer })
 end
 
@@ -175,7 +133,7 @@ function Installer:Download()
     end
 
     local downloadFileTreeTools = FileTreeTools.new(downloadFile, createFolder)
-    downloadFileTreeTools:doFolder("/", OSFiles)
+    downloadFileTreeTools:doFolder("/", self.m_installFiles)
 
     for _, request in ipairs(requests) do
         request()

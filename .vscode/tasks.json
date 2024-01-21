@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "create install files list",
+            "type": "shell",
+            "command": "lua",
+            "args": [
+                "${workspaceFolder}/tools/CreateInstallFilesList.lua",
+                "${workspaceFolder}/OS/",
+                "${workspaceFolder}/install/files.lua"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true,
+                "close": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
