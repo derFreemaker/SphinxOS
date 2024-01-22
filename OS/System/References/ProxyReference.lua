@@ -9,10 +9,10 @@ function ProxyReference:__init(id)
     self.m_id = id
 end
 
-function ProxyReference:Fetch()
-    local obj = component.proxy(self.m_id)
-    self.m_obj = obj
-    return obj ~= nil
+---@protected
+---@return Satisfactory.Components.Object?
+function ProxyReference:InternalFetch()
+    return component.proxy(self.m_id)
 end
 
 return Utils.Class.Create(ProxyReference, "SphinxOS.System.References.ProxyReference", {

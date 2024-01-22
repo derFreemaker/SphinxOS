@@ -12,11 +12,10 @@ function PCIDeviceReference:__init(class, index)
     self.m_index = index
 end
 
----@return boolean found
-function PCIDeviceReference:Fetch()
-    local obj = computer.getPCIDevices(self.m_class)[self.m_index]
-    self.m_obj = obj
-    return obj ~= nil
+---@protected
+---@return FIN.PCIDevice
+function PCIDeviceReference:InternalFetch()
+    return computer.getPCIDevices(self.m_class)[self.m_index]
 end
 
 return Utils.Class.Create(PCIDeviceReference, "SphinxOS.System.References.PCIDeviceReference", {

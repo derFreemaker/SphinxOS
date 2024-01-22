@@ -1,10 +1,17 @@
 ---@class SphinxOS.System.References.IReference<TReference> : object, { Get: fun() : TReference }
----@field protected m_obj Satisfactory.Components.Object?
+---@field m_obj Satisfactory.Components.Object?
 ---@field m_expires number
 ---@overload fun() : SphinxOS.System.References.IReference
 local IReference = {}
 
 IReference.m_expires = 0
+
+---@protected
+---@return Satisfactory.Components.Object?
+function IReference:InternalFetch()
+end
+
+IReference.InternalFetch = Utils.Class.IsAbstract
 
 ---@return any
 function IReference:Get()
@@ -22,10 +29,10 @@ end
 
 ---@return boolean found
 function IReference:Fetch()
-    ---@diagnostic disable-next-line
+    local obj = self:InternalFetch()
+    self.m_obj = obj
+    return obj ~= nil
 end
-
-IReference.Fetch = Utils.Class.IsAbstract
 
 ---@return boolean isValid
 function IReference:Check()
