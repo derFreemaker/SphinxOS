@@ -3,7 +3,7 @@ local Path = require("tools.Freemaker.bin.path")
 local CurrentPath = Path.new(FileSystem.GetCurrentDirectory())
     :GetParentFolderPath()
     :GetParentFolderPath()
-local Sim, MainProcess = require('tools.Testing.Simulator'):Initialize(CurrentPath)
+local Sim, MainProcess = require('tools.Testing.Simulator'):InitializeWithOS(CurrentPath)
 print("MainProcess PID: " .. MainProcess.ID .. "\n")
 
 local Buffer = require("/OS/System/IO/Buffer")
@@ -33,13 +33,13 @@ local function foo(str, task)
     currentProcess.stdOut:Flush()
 
     if task then
-        task:Execute()
+        task:Execute(currentProcess.ID)
         print(Environment.Static__Current().workingDirectory)
     end
 
     local process = require("/System/Threading/Process")
 
-    if currentProcess.ID < 5 then
+    if currentProcess.ID < 6 then
         local test = process(foo)
         test:Execute(str, task)
 
@@ -51,8 +51,12 @@ local function foo(str, task)
 end
 
 local testTask = Task(
-    function()
+    function(id)
         print(Environment.Static__Current().workingDirectory)
+
+        if id == 4 then
+            MainProcess:Stop()
+        end
     end
 )
 
@@ -68,8 +72,12 @@ if not test:IsSuccess() then
     print(test:Traceback())
 end
 
-io.stdout:write("\nbuffer:\n")
-io.stdout:write(testBuffer:Read() .. "\n")
-io.stdout:flush()
+MainProcess.stdOut:Write("\nbuffer:\n")
+MainProcess.stdOut:Write(testBuffer:Read() .. "\n")
+MainProcess.stdOut:Flush()
+
+print(MainProcess.stdIn:Read("l"))
 
 print("### END ###")
+
+--//TODO: make a lot of tests

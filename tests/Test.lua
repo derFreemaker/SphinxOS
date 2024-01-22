@@ -1,14 +1,15 @@
 local luaunit = require('tools.Testing.Luaunit')
 
 local Curl = require("tools.Curl")
-local Installer = require("SphinxOS.misc.installer")
+local Installer = require("install.installer")
+local InstallFilesIndex = require("install.files")
 
 local FileSystem = require("tools.Freemaker.bin.filesystem")
 local currentPath = FileSystem:GetCurrentDirectory()
-local FileSystemPath = currentPath .. "/Sim-Files/Test_LoaderLoad"
+local FileSystemPath = currentPath .. "/Sim-Files"
 
 local bootFilePath = currentPath .. "/../../SphinxOS/boot/boot.lua"
-local eepromFile = io.open(currentPath .. "/../../SphinxOS/misc/install.eeprom.lua", "r")
+local eepromFile = io.open(currentPath .. "/../install/eeprom.lua", "r")
 if not eepromFile then
     error("unable to open install.eeprom")
 end
@@ -41,7 +42,7 @@ function TestInstall()
         error("unable to create install folder")
     end
 
-    local installer = Installer.new(BASE_URL, BASE_PATH, "/SphinxOS/boot/boot.lua", Curl)
+    local installer = Installer.new(BASE_URL, BASE_PATH, "/SphinxOS/boot/boot.lua", Curl, InstallFilesIndex)
 
     print("downloading OS files...")
     installer:Download()
@@ -60,7 +61,7 @@ function TestInstall()
 end
 
 function TestRunBoot()
-    local installer = Installer.new(BASE_URL, BASE_PATH, "/SphinxOS/boot/boot.lua", Curl)
+    local installer = Installer.new(BASE_URL, BASE_PATH, "/SphinxOS/boot/boot.lua", Curl, InstallFilesIndex)
 
     print("writing boot loader to eeprom...")
     installer:LoadBootLoader()

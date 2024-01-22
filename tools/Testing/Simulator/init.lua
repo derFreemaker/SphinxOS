@@ -28,11 +28,16 @@ local function setupMainProcess()
 		return environment()
 	end
 
-	local consoleOutStreamAdapter = require("/tools/Testing/Adapter/ConsoleOutStreamAdapter")
+	local fileStreamAdapter = require("/tools/Testing/Adapter/FileStreamAdapter")
 	local process = require("/OS/System/Threading/Process")
 
 	---@diagnostic disable-next-line
-	main = process(nil, { parent = false, stdOut = consoleOutStreamAdapter() })
+	main = process(nil, {
+		parent = false,
+		stdIn = fileStreamAdapter(io.stdin, { canRead = true }),
+		stdOut = fileStreamAdapter(io.stdout, { canWrite = true }),
+		stdErr = fileStreamAdapter(io.stderr, { canWrite = true })
+	})
 	main:Prepare()
 	return main
 end
@@ -40,21 +45,17 @@ end
 ---@private
 ---@param fileSystemPath Freemaker.FileSystem.Path
 ---@param eeprom string
----@return SphinxOS.System.Threading.Process
 function Simulator:prepare(fileSystemPath, eeprom)
 	loadClassesAndStructs()
 	loadComputer(eeprom)
 	loadFileSystem(fileSystemPath)
 	loadComponent()
 	loadEvent()
-	setupRequire()
-	setupUtils()
-	return setupMainProcess()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
 ---@param eeprom string?
----@return Test.Simulator, SphinxOS.System.Threading.Process
+---@return Test.Simulator
 function Simulator:Initialize(fileSystemPath, eeprom)
 	if fileSystemPath == nil then
 		local info = debug.getinfo(2)
@@ -65,7 +66,26 @@ function Simulator:Initialize(fileSystemPath, eeprom)
 		fileSystemPath = Path.new(fileSystemPath)
 	end
 
-	local mainProcess = self:prepare(fileSystemPath, eeprom or "")
+	self:prepare(fileSystemPath, eeprom or "")
+
+	return self
+end
+
+function Simulator:InitializeWithOS(fileSystemPath, eeprom)
+	if fileSystemPath == nil then
+		local info = debug.getinfo(2)
+		fileSystemPath = Path.new(info.source)
+			:GetParentFolderPath()
+			:Append("Sim-Files")
+	elseif type(fileSystemPath) == "string" then
+		fileSystemPath = Path.new(fileSystemPath)
+	end
+
+	self:prepare(fileSystemPath, eeprom or "")
+
+	setupRequire()
+	setupUtils()
+	local mainProcess = setupMainProcess()
 
 	return self, mainProcess
 end

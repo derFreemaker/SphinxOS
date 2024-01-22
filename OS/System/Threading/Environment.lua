@@ -11,10 +11,12 @@ local _history = {}
 ---@class SphinxOS.System.Threading.Environment.Options
 ---@field variables table<string, string>?
 ---@field workingDirectory string?
+---@field inTask boolean?
 
 ---@class SphinxOS.System.Threading.Environment : object
 ---@field variables table<string, string>
 ---@field workingDirectory string
+---@field inTask boolean
 ---@overload fun(options: SphinxOS.System.Threading.Environment.Options?) : SphinxOS.System.Threading.Environment
 local Environment = {}
 
@@ -34,6 +36,8 @@ function Environment:__init(options)
     self.variables = options.variables or {}
 
     self.workingDirectory = options.workingDirectory or "/"
+
+    self.inTask = options.inTask or false
 end
 
 function Environment:Prepare()

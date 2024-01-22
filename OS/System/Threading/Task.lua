@@ -1,4 +1,5 @@
 local Environment = require("//OS/System/Threading/Environment")
+local Process = require("//OS/System/Threading/Process")
 
 ---@class SphinxOS.System.Threading.Task : object
 ---@field m_func function
@@ -26,6 +27,11 @@ function Task:__init(func)
 
     self.m_success = true
     self.m_results = {}
+end
+
+---@private
+function Task:__gc()
+    self:Close()
 end
 
 ---@return boolean
@@ -56,6 +62,12 @@ function Task:State()
     return coroutine.status(self.m_thread)
 end
 
+---@param success boolean
+---@param ... any
+---@return boolean, any[]
+local function retrieveValues(success, ...)
+    return success, { ... }
+end
 ---@param ... any
 ---@return any ...
 function Task:Execute(...)
@@ -68,15 +80,18 @@ function Task:Execute(...)
     self.m_closed = false
     self.m_traceback = nil
 
+    local currentEnv = Environment.Static__Current()
+
     self.m_environment:Prepare()
-    local success, results = coroutine.resume(self.m_thread, self.m_func, ...)
+    currentEnv.inTask = true
+    self.m_success, self.m_results = retrieveValues(coroutine.resume(self.m_thread, self.m_func, ...))
+    currentEnv.inTask = false
     self.m_environment:Revert()
 
-    self.m_success = success
-    if success then
-        self.m_results = results
-    else
-        self.m_error = results
+    Process.Static__Running():Check()
+
+    if not self.m_success then
+        self.m_error = self.m_results[1]
     end
 
     return table.unpack(self.m_results)

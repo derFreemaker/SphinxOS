@@ -9,16 +9,28 @@ local _processes = {}
 ---@alias SphinxOS.System.Threading.Process.State
 ---|0 waiting
 ---|10 running
+---|20 stop
+---|30 kill
 ---|50 finished
 ---|100 dead
+
+---@class SphinxOS.System.Threading.Process.Options
+---@field parent (SphinxOS.System.Threading.Process | false)?
+---@field environment SphinxOS.System.Threading.Environment.Options?
+---
+---@field stdIn SphinxOS.System.IO.IStream?
+---@field stdOut SphinxOS.System.IO.IStream?
+---@field stdErr SphinxOS.System.IO.IStream?
 
 ---@class SphinxOS.System.Threading.Process : object
 ---@field ID integer
 ---@field m_co thread
 ---
----@field m_environment SphinxOS.System.Threading.Environment
----@field m_parent SphinxOS.System.Threading.Process?
 ---@field m_state SphinxOS.System.Threading.Process.State
+---@field m_environment SphinxOS.System.Threading.Environment
+---
+---@field m_parent SphinxOS.System.Threading.Process?
+---@field m_childs SphinxOS.System.Threading.Process[]
 ---
 ---@field stdIn SphinxOS.System.IO.IStream
 ---@field stdOut SphinxOS.System.IO.IStream
@@ -28,19 +40,10 @@ local _processes = {}
 ---@field m_results any[]?
 ---@field m_error string?
 ---@field m_traceback string?
----
 ---@overload fun(func: function, options: SphinxOS.System.Threading.Process.Options?) : SphinxOS.System.Threading.Process
 local Process = {}
 
 ---@alias SphinxOS.System.Threading.Process.__init fun(func: function, options: SphinxOS.System.Threading.Process.Options?)
-
----@class SphinxOS.System.Threading.Process.Options
----@field parent (SphinxOS.System.Threading.Process | false)?
----@field environment SphinxOS.System.Threading.Environment.Options?
----
----@field stdIn SphinxOS.System.IO.IStream?
----@field stdOut SphinxOS.System.IO.IStream?
----@field stdErr SphinxOS.System.IO.IStream?
 
 ---@private
 ---@param func function
@@ -52,6 +55,8 @@ function Process:__init(func, options)
 
     self.ID = #_processes + 1
     self.m_state = 0
+
+    self.m_childs = setmetatable({}, { __mode = 'v' })
 
     self.m_co = coroutine.create(
         function(...)
@@ -77,6 +82,8 @@ function Process:__init(func, options)
         else
             self.m_environment = options.parent.m_environment
         end
+
+        table.insert(self.m_parent.m_childs, self)
     else
         if options.environment then
             self.m_environment = Environment(options.environment)
@@ -90,6 +97,11 @@ function Process:__init(func, options)
     end
 
     _processes[self.ID] = self
+end
+
+---@private
+function Process:__gc()
+    self:Kill()
 end
 
 function Process:Prepare()
@@ -165,6 +177,16 @@ end
 ---@param ... any
 ---@return any ...
 function Process:Stop(...)
+    self.m_state = 20
+
+    for _, process in pairs(self.m_childs) do
+        process:Stop()
+    end
+
+    if self.m_environment.inTask then
+        return coroutine.yield(...)
+    end
+
     if self ~= Process.Static__Running() then
         error("can only stop currently running process")
     end
@@ -175,6 +197,10 @@ end
 function Process:Kill()
     if Process.Static__Running() == self then
         error("cannot kill running process")
+    end
+
+    for _, process in pairs(self.m_childs) do
+        process:Kill()
     end
 
     self.m_state = 100
@@ -189,6 +215,14 @@ function Process:Traceback()
 
     self.m_traceback = debug.traceback(self.m_co, self.m_error)
     return self.m_traceback
+end
+
+function Process:Check()
+    if self.m_state == 20 then
+        self:Stop()
+    elseif self.m_state == 30 then
+        self:Kill()
+    end
 end
 
 ---@return SphinxOS.System.Threading.Process
