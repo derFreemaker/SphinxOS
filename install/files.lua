@@ -7,7 +7,7 @@ return {
 		{ "190_eventHandler.lua" },
 		{ "20_utils.lua" },
 		{ "200_start.lua" },
-		{ "boot.eeprom.lua" },
+		{ "eeprom.lua" },
 	},
 	{
 		"misc",
@@ -74,6 +74,7 @@ return {
 			{ "Environment.lua" },
 			{ "Process.lua" },
 			{ "Task.lua" },
+			{ "Thread.lua" },
 		},
 		{ "Require.lua" },
 	},

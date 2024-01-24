@@ -13,3 +13,6 @@
 **/.vs
 
 **/Sim-Files
+
+# don't ignore apache binaries
+!Code-Server/bin

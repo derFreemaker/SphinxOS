@@ -84,7 +84,8 @@ return function(fileSystemPath)
             return { "%FakeDrive%" }
         end
 
-        local dirs = FileSystem.GetDirectories(fileSystemPath:Extend(path):ToString())
+        path = fileSystemPath:Extend(path):ToString()
+        local dirs = FileSystem.GetDirectories(path)
         local files = FileSystem.GetFiles(path)
         return { table.unpack(dirs), table.unpack(files) }
     end

@@ -16,7 +16,7 @@ local INSTALL_FILES_PATH = INSTALL_PATH .. "/files.lua"
 local INSTALL_EEPROM_PATH = INSTALL_PATH .. "/eeprom.lua"
 
 local OS_PATH = "/SphinxOS"
-local BOOT_PATH = OS_PATH .. "/boot/boot.eeprom.lua"
+local BOOT_PATH = OS_PATH .. "/boot/eeprom.lua"
 
 local internetCard
 do

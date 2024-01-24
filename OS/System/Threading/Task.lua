@@ -1,10 +1,9 @@
 local Environment = require("//OS/System/Threading/Environment")
-local Process = require("//OS/System/Threading/Process")
 
 ---@class SphinxOS.System.Threading.Task : object
 ---@field m_func function
 ---
----@field m_thread thread
+---@field m_thread SphinxOS.System.Threading.Thread
 ---@field m_closed boolean
 ---@field m_environment SphinxOS.System.Threading.Environment
 ---
@@ -80,15 +79,16 @@ function Task:Execute(...)
     self.m_closed = false
     self.m_traceback = nil
 
-    local currentEnv = Environment.Static__Current()
+    -- local currentProcess = Process.Static__Running()
+
+    --//TODO: do some kind thread stack
+    -- currentProcess:AddTask(self)
 
     self.m_environment:Prepare()
-    currentEnv.inTask = true
     self.m_success, self.m_results = retrieveValues(coroutine.resume(self.m_thread, self.m_func, ...))
-    currentEnv.inTask = false
     self.m_environment:Revert()
 
-    Process.Static__Running():Check()
+    -- currentProcess:RemoveTask(self)
 
     if not self.m_success then
         self.m_error = self.m_results[1]

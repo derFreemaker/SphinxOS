@@ -20,8 +20,11 @@ local _history = {}
 ---@overload fun(options: SphinxOS.System.Threading.Environment.Options?) : SphinxOS.System.Threading.Environment
 local Environment = {}
 
----@type fun() : SphinxOS.System.Threading.Environment
-Environment.Static__Default = Utils.Class.Placeholder
+
+---@return SphinxOS.System.Threading.Environment
+function Environment.Static__Default()
+    return Environment()
+end
 
 ---@alias SphinxOS.System.Threading.Environment.__init fun(options: SphinxOS.System.Threading.Environment.Options?)
 

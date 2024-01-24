@@ -16,7 +16,7 @@ mainProcess:Prepare()
 local code = mainProcess:Execute()
 
 if mainProcess:IsSuccess() then
-    print("OS shutdown with code: " .. code)
+    print("OS shutdown with code: " .. (code or 0))
 else
     print(mainProcess:GetError())
 end

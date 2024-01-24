@@ -17,17 +17,12 @@ local function setupRequire()
 end
 
 local function setupUtils()
-	Utils = require("/OS/misc/utils")
-	Utils.Class = require("/OS/misc/classSystem")
+	Utils = require("OS.misc.utils")
+	Utils.Class = require("OS.misc.classSystem")
 end
 
 ---@return SphinxOS.System.Threading.Process
 local function setupMainProcess()
-	local environment = require("/OS/System/Threading/Environment")
-	environment.Static__Default = function()
-		return environment()
-	end
-
 	local fileStreamAdapter = require("/tools/Testing/Adapter/FileStreamAdapter")
 	local process = require("/OS/System/Threading/Process")
 
@@ -51,6 +46,7 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	loadFileSystem(fileSystemPath)
 	loadComponent()
 	loadEvent()
+	setupUtils()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
@@ -84,7 +80,6 @@ function Simulator:InitializeWithOS(fileSystemPath, eeprom)
 	self:prepare(fileSystemPath, eeprom or "")
 
 	setupRequire()
-	setupUtils()
 	local mainProcess = setupMainProcess()
 
 	return self, mainProcess

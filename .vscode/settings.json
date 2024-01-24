@@ -1,14 +1,28 @@
 {
-    "Lua.workspace.ignoreSubmodules": false,
+    "Lua.workspace.useGitIgnore": false,
+	"Lua.workspace.ignoreSubmodules": false,
+	"Lua.workspace.maxPreload": 10000,
+	"Lua.workspace.preloadFileSize": 2000,
     "Lua.workspace.ignoreDir": [
-        ".vscode",
+        ".git",
+		".vscode",
         "docu/tools",
         "**/Sim-Files",
-        "**/Freemaker/src"
+        "**/Freemaker/src",
+		"Code-Server"
     ],
     "Lua.diagnostics.disable": [
         "different-requires"
     ],
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		"Code-Server": true
+	},
     "logFileHighlighter.customPatterns": [
 		{
 			"pattern": ".*\\[Log\\] ->.*",
@@ -49,5 +63,8 @@
 			"pattern": "\\[TASK START\\]",
 			"foreground": "#0da00d"
 		}
+	],
+	"Lua.diagnostics.globals": [
+		"NotInGame"
 	],
 }
