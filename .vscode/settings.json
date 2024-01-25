@@ -4,12 +4,13 @@
 	"Lua.workspace.maxPreload": 10000,
 	"Lua.workspace.preloadFileSize": 2000,
     "Lua.workspace.ignoreDir": [
-        ".git",
-		".vscode",
-        "docu/tools",
+        "**/.git",
+		"**/.github",
+		"**/.vscode",
+        "**/docu/tools",
         "**/Sim-Files",
         "**/Freemaker/src",
-		"Code-Server"
+		"**/Code-Server"
     ],
     "Lua.diagnostics.disable": [
 		"different-requires"
