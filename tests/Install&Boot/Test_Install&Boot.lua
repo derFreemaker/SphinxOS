@@ -6,21 +6,17 @@ local InstallFilesIndex = require("install.files")
 
 local FileSystem = require("tools.Freemaker.bin.filesystem")
 
--- ? to indicate we are not in game used to not call computer.stop and other things
-NotInGame = true
-
 local currentPath = FileSystem:GetCurrentDirectory()
-local FileSystemPath = currentPath .. "/Sim-Files"
 
-local bootFilePath = currentPath .. "/../OS/boot/eeprom.lua"
-local eepromFile = io.open(currentPath .. "/../install/eeprom.lua", "r")
+local bootFilePath = currentPath .. "/../../OS/boot/eeprom.lua"
+local eepromFile = io.open(currentPath .. "/../../install/eeprom.lua", "r")
 if not eepromFile then
     error("unable to open install.eeprom")
 end
 local eeprom = eepromFile:read("a")
 eepromFile:close()
 
-local Sim = require('tools.Testing.Simulator'):Initialize(FileSystemPath, eeprom)
+local Sim = require('tools.Testing.Simulator'):Initialize(nil, eeprom, true)
 
 local BASE_URL = "http://localhost"
 -- local BASE_URL = "https://raw.githubusercontent.com/derFreemaker/Satisfactory/main"

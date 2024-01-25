@@ -55,7 +55,7 @@ local testTask = Task(
         print(Environment.Static__Current().workingDirectory)
 
         if id == 4 then
-            MainProcess:Stop()
+            MainProcess:Kill()
         end
     end
 )

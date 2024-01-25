@@ -11,9 +11,8 @@ local loadEvent = require("tools.Testing.Simulator.event")
 ---@field private m_loadedLoaderFiles table<string, any[]>
 local Simulator = {}
 
----@private
 local function setupRequire()
-	filesystem.doFile("/OS/System/Require.lua")
+	dofile("OS/System/Require.lua")
 end
 
 local function setupUtils()
@@ -47,12 +46,14 @@ function Simulator:prepare(fileSystemPath, eeprom)
 	loadComponent()
 	loadEvent()
 	setupUtils()
+	setupRequire()
 end
 
 ---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
 ---@param eeprom string?
+---@param inGame boolean?
 ---@return Test.Simulator
-function Simulator:Initialize(fileSystemPath, eeprom)
+function Simulator:Initialize(fileSystemPath, eeprom, inGame)
 	if fileSystemPath == nil then
 		local info = debug.getinfo(2)
 		fileSystemPath = Path.new(info.source)
@@ -63,11 +64,20 @@ function Simulator:Initialize(fileSystemPath, eeprom)
 	end
 
 	self:prepare(fileSystemPath, eeprom or "")
+
+	-- ? to indicate we are not in game used to not call computer.stop and other things
+	if not inGame then
+		NotInGame = inGame
+	end
 
 	return self
 end
 
-function Simulator:InitializeWithOS(fileSystemPath, eeprom)
+---@param fileSystemPath (string | Freemaker.FileSystem.Path)?
+---@param eeprom string?
+---@param inGame boolean?
+---@return Test.Simulator, SphinxOS.System.Threading.Process
+function Simulator:InitializeWithOS(fileSystemPath, eeprom, inGame)
 	if fileSystemPath == nil then
 		local info = debug.getinfo(2)
 		fileSystemPath = Path.new(info.source)
@@ -79,7 +89,11 @@ function Simulator:InitializeWithOS(fileSystemPath, eeprom)
 
 	self:prepare(fileSystemPath, eeprom or "")
 
-	setupRequire()
+	-- ? to indicate we are not in game used to not call computer.stop and other things
+	if not inGame then
+		NotInGame = true
+	end
+
 	local mainProcess = setupMainProcess()
 
 	return self, mainProcess

@@ -1,5 +1,6 @@
 local Buffer = require("//OS/System/IO/Buffer")
 local Stream = require("//OS/System/IO/Stream")
+local Thread = require("//OS/System/Threading/Thread")
 
 local Environment = require("//OS/System/Threading/Environment")
 
@@ -9,10 +10,9 @@ local _processes = {}
 ---@alias SphinxOS.System.Threading.Process.State
 ---|0 waiting
 ---|10 running
----|20 stop
----|30 kill
 ---|50 finished
 ---|100 dead
+---|200 closed
 
 ---@class SphinxOS.System.Threading.Process.Options
 ---@field parent (SphinxOS.System.Threading.Process | false)?
@@ -24,7 +24,7 @@ local _processes = {}
 
 ---@class SphinxOS.System.Threading.Process : object
 ---@field ID integer
----@field m_co thread
+---@field m_thread SphinxOS.System.Threading.Thread
 ---
 ---@field m_state SphinxOS.System.Threading.Process.State
 ---@field m_environment SphinxOS.System.Threading.Environment
@@ -58,11 +58,11 @@ function Process:__init(func, options)
 
     self.m_childs = setmetatable({}, { __mode = 'v' })
 
-    self.m_co = coroutine.create(
+    self.m_thread = Thread(
         function(...)
             local result = { func(...) }
             self.m_state = 50
-            return table.unpack(result)
+            return result
         end
     )
 
@@ -101,7 +101,7 @@ end
 
 ---@private
 function Process:__gc()
-    self:Kill()
+    self:Close()
 end
 
 function Process:Prepare()
@@ -141,27 +141,24 @@ function Process:GetError()
     return self.m_error
 end
 
----@return boolean, any ...
-local function retrieveValues(success, ...)
-    return success, { ... }
-end
 ---@async
 ---@param ... any
 ---@return any ...
 function Process:Execute(...)
     if self.m_state ~= 0 then
-        error("cannot execute dead, finished or running process")
+        error("cannot only execute waiting process")
     end
 
     self:Prepare()
     self.m_state = 10
-    self.m_success, self.m_results = retrieveValues(coroutine.resume(self.m_co, ...))
+    self.m_success, self.m_results = self.m_thread:Execute(...)
     self:Cleanup()
 
     if self.m_state == 10 then
         self.m_state = 0
-    elseif self.m_state == 50 then
-        self:Kill()
+    elseif self.m_state == 50 or self.m_state == 100 then
+        self.m_state = 100
+        self:Close()
     end
 
     if not self.m_success then
@@ -176,35 +173,21 @@ end
 
 ---@param ... any
 ---@return any ...
-function Process:Stop(...)
-    self.m_state = 20
+function Process:Kill(...)
+    self.m_state = 100
 
-    for _, process in pairs(self.m_childs) do
-        process:Stop()
-    end
-
-    if self.m_environment.inTask then
-        return coroutine.yield(...)
-    end
-
-    if self ~= Process.Static__Running() then
-        error("can only stop currently running process")
-    end
-
-    return coroutine.yield(...)
+    self.m_thread:Kill(...)
 end
 
-function Process:Kill()
-    if Process.Static__Running() == self then
-        error("cannot kill running process")
+function Process:Close()
+    if self.m_state ~= 100 then
+        error("unable to close process that is not dead")
     end
 
-    for _, process in pairs(self.m_childs) do
-        process:Kill()
-    end
+    self:Traceback()
+    self.m_state = 200
 
-    self.m_state = 100
-    coroutine.close(self.m_co)
+    self.m_thread:Close()
 end
 
 ---@return string
@@ -213,16 +196,8 @@ function Process:Traceback()
         return self.m_traceback
     end
 
-    self.m_traceback = debug.traceback(self.m_co, self.m_error)
+    self.m_traceback = debug.traceback(self.m_thread.co, self.m_error)
     return self.m_traceback
-end
-
-function Process:Check()
-    if self.m_state == 20 then
-        self:Stop()
-    elseif self.m_state == 30 then
-        self:Kill()
-    end
 end
 
 ---@return SphinxOS.System.Threading.Process

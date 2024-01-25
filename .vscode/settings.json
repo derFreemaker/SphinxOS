@@ -12,8 +12,8 @@
 		"Code-Server"
     ],
     "Lua.diagnostics.disable": [
-        "different-requires"
-    ],
+		"different-requires"
+	],
 	"files.exclude": {
 		"**/.git": true,
 		"**/.svn": true,

@@ -19,6 +19,10 @@ function Require.SetWorkingDirectory(path)
     Require.workingDirectory = filesystem.path(path)
 end
 
+if NotInGame then
+    return Require
+end
+
 ---@param path string
 function require(path)
     if Require.workingDirectory and path:find("//") ~= 1 then
@@ -32,6 +36,7 @@ function require(path)
     for _, func in pairs(Require.Searchers) do
         local tmp = func(path)
         table.insert(history, tmp)
+
         if filesystem.isFile(tmp) then
             path = tmp
             found = true
@@ -51,7 +56,7 @@ function require(path)
         return table.unpack(data)
     end
 
-    data = { filesystem.loadFile(path)() }
+    data = { filesystem.doFile(path) }
     Require.cache[path] = data
 
     return table.unpack(data)

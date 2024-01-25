@@ -1,3 +1,4 @@
+local Thread = require("//OS/System/Threading/Thread")
 local Environment = require("//OS/System/Threading/Environment")
 
 ---@class SphinxOS.System.Threading.Task : object
@@ -58,43 +59,30 @@ function Task:State()
     if self.m_thread == nil then
         return "not created"
     end
-    return coroutine.status(self.m_thread)
+    return coroutine.status(self.m_thread.co)
 end
 
----@param success boolean
----@param ... any
----@return boolean, any[]
-local function retrieveValues(success, ...)
-    return success, { ... }
-end
 ---@param ... any
 ---@return any ...
 function Task:Execute(...)
-    ---@param ... any
-    local function invokeFunc(func, ...)
-        return { func(...) }
-    end
-
-    self.m_thread = coroutine.create(invokeFunc)
+    self.m_thread = Thread(self.m_func)
     self.m_closed = false
     self.m_traceback = nil
 
-    -- local currentProcess = Process.Static__Running()
-
-    --//TODO: do some kind thread stack
-    -- currentProcess:AddTask(self)
-
     self.m_environment:Prepare()
-    self.m_success, self.m_results = retrieveValues(coroutine.resume(self.m_thread, self.m_func, ...))
+    self.m_success, self.m_results = self.m_thread:Execute(...)
     self.m_environment:Revert()
-
-    -- currentProcess:RemoveTask(self)
 
     if not self.m_success then
         self.m_error = self.m_results[1]
     end
 
     return table.unpack(self.m_results)
+end
+
+---@param ... any
+function Task:Kill(...)
+    self.m_thread:Kill(...)
 end
 
 ---@private
@@ -118,22 +106,16 @@ function Task:CheckThreadState()
     end
 end
 
----@param ... any parameters
----@return any ... results
-function Task:Resume(...)
-    self:CheckThreadState()
-    self.m_success, self.m_error = coroutine.resume(self.m_thread, ...)
-    return table.unpack(self.m_results)
-end
-
 function Task:Close()
     if self.m_closed then
         return
     end
+
     if not self.m_success then
         self:Traceback()
     end
-    coroutine.close(self.m_thread)
+
+    self.m_thread:Close()
     self.m_closed = true
 end
 
@@ -143,6 +125,7 @@ function Task:Traceback()
     if self.m_traceback ~= nil or self.m_closed then
         return self.m_traceback
     end
+
     self.m_traceback = debug.traceback(self.m_thread, self.m_error or "") .. "\n[TASK START]"
     return self.m_traceback
 end
