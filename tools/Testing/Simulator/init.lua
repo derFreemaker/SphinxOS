@@ -63,12 +63,10 @@ function Simulator:Initialize(fileSystemPath, eeprom, inGame)
 		fileSystemPath = Path.new(fileSystemPath)
 	end
 
-	self:prepare(fileSystemPath, eeprom or "")
-
 	-- ? to indicate we are not in game used to not call computer.stop and other things
-	if not inGame then
-		NotInGame = inGame
-	end
+	NotInGame = not inGame
+
+	self:prepare(fileSystemPath, eeprom or "")
 
 	return self
 end
@@ -87,16 +85,12 @@ function Simulator:InitializeWithOS(fileSystemPath, eeprom, inGame)
 		fileSystemPath = Path.new(fileSystemPath)
 	end
 
+	-- ? to indicate we are not in game used to not call computer.stop and other things
+	NotInGame = not inGame
+
 	self:prepare(fileSystemPath, eeprom or "")
 
-	-- ? to indicate we are not in game used to not call computer.stop and other things
-	if not inGame then
-		NotInGame = true
-	end
-
-	local mainProcess = setupMainProcess()
-
-	return self, mainProcess
+	return self, setupMainProcess()
 end
 
 return Simulator

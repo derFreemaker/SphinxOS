@@ -24,24 +24,27 @@ local bootOrder = {}
 local bootFolder = "/OS/boot"
 
 for _, child in pairs(filesystem.childs(bootFolder)) do
-    if child:find(".eeprom.", nil, true) then
-        goto continue
-    end
-
     local path = filesystem.path(bootFolder, child)
     local fileName = child
     local num = fileName:match('^(%d+)_.+$')
-    if num then
-        num = tonumber(num)
-        ---@cast num integer
-        local entries = bootEntries[num]
-        if not entries then
-            entries = {}
-            bootEntries[num] = entries
-            table.insert(bootOrder, num)
-        end
-        table.insert(entries, path)
+
+    if not num then
+        goto continue
     end
+
+
+    num = tonumber(num)
+    if not num then
+        goto continue
+    end
+
+    local entries = bootEntries[num]
+    if not entries then
+        entries = {}
+        bootEntries[num] = entries
+        table.insert(bootOrder, num)
+    end
+    table.insert(entries, path)
 
     ::continue::
 end

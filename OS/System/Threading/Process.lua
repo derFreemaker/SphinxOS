@@ -7,13 +7,6 @@ local Environment = require("//OS/System/Threading/Environment")
 ---@type table<integer, SphinxOS.System.Threading.Process>
 local _processes = {}
 
----@alias SphinxOS.System.Threading.Process.State
----|0 waiting
----|10 running
----|50 finished
----|100 dead
----|200 closed
-
 ---@class SphinxOS.System.Threading.Process.Options
 ---@field parent (SphinxOS.System.Threading.Process | false)?
 ---@field environment SphinxOS.System.Threading.Environment.Options?
@@ -26,7 +19,7 @@ local _processes = {}
 ---@field ID integer
 ---@field m_thread SphinxOS.System.Threading.Thread
 ---
----@field m_state SphinxOS.System.Threading.Process.State
+---@field m_closed boolean
 ---@field m_environment SphinxOS.System.Threading.Environment
 ---
 ---@field m_parent SphinxOS.System.Threading.Process?
@@ -54,17 +47,11 @@ function Process:__init(func, options)
     end
 
     self.ID = #_processes + 1
-    self.m_state = 0
+    self.m_closed = false
 
     self.m_childs = setmetatable({}, { __mode = 'v' })
 
-    self.m_thread = Thread(
-        function(...)
-            local result = { func(...) }
-            self.m_state = 50
-            return result
-        end
-    )
+    self.m_thread = Thread(func)
 
     if options.parent == nil then
         options.parent = Process.Static__Running()
@@ -145,26 +132,17 @@ end
 ---@param ... any
 ---@return any ...
 function Process:Execute(...)
-    if self.m_state ~= 0 then
-        error("cannot only execute waiting process")
+    if self.m_closed then
+        error("cannot not closed process")
     end
 
     self:Prepare()
-    self.m_state = 10
     self.m_success, self.m_results = self.m_thread:Execute(...)
     self:Cleanup()
 
-    if self.m_state == 10 then
-        self.m_state = 0
-    elseif self.m_state == 50 or self.m_state == 100 then
-        self.m_state = 100
-        self:Close()
-    end
+    self:Close()
 
     if not self.m_success then
-        self.m_error = self.m_results[1]
-        self:Traceback()
-        self:Kill()
         return self:Traceback()
     end
 
@@ -174,24 +152,26 @@ end
 ---@param ... any
 ---@return any ...
 function Process:Kill(...)
-    self.m_state = 100
-
     self.m_thread:Kill(...)
 end
 
 function Process:Close()
-    if self.m_state ~= 100 then
+    if self.m_closed then
         error("unable to close process that is not dead")
     end
 
     self:Traceback()
-    self.m_state = 200
+    self.m_closed = true
 
-    self.m_thread:Close()
+    self.m_success, self.m_error = self.m_thread:Close()
 end
 
----@return string
+---@return string?
 function Process:Traceback()
+    if self.m_success then
+        return nil
+    end
+
     if self.m_traceback then
         return self.m_traceback
     end

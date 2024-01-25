@@ -71,6 +71,7 @@ return {
 		},
 		{
 			"Threading",
+			{ "Coroutine.lua" },
 			{ "Environment.lua" },
 			{ "Process.lua" },
 			{ "Task.lua" },

@@ -12,7 +12,6 @@ local mainProcess = Process(main, {
         workingDirectory = "/",
     },
 })
-mainProcess:Prepare()
 local code = mainProcess:Execute()
 
 if mainProcess:IsSuccess() then

@@ -7,20 +7,18 @@ local INSTALL_URL = BASE_URL .. "/install"
 local INSTALLER_URL = INSTALL_URL .. "/installer.lua"
 local INSTALL_FILES_URL = INSTALL_URL .. "/files.lua"
 
-local OS_URL = "/OS"
-
 -- Paths
 local INSTALL_PATH = "/install"
 local INSTALLER_PATH = INSTALL_PATH .. "/installer.lua"
 local INSTALL_FILES_PATH = INSTALL_PATH .. "/files.lua"
 local INSTALL_EEPROM_PATH = INSTALL_PATH .. "/eeprom.lua"
 
-local OS_PATH = "/SphinxOS"
+local OS_PATH = "/OS"
 local BOOT_PATH = OS_PATH .. "/boot/eeprom.lua"
 
 local internetCard
 do
-    print("### initializing... ###")
+    print("initializing...")
 
     internetCard = computer.getPCIDevices(classes.InternetCard_C)[1]
     if not internetCard then
@@ -43,12 +41,12 @@ do
     end
     filesystem.mount('/dev/' .. drive, '/')
 
-    print("### initialized ###")
+    print("initialized!")
 end
 do
-    print("### downloading... ###")
+    print("downloading...")
     do
-        print("### downloading installer... ###")
+        print("downloading installer...")
 
         local req = internetCard:request(INSTALLER_URL, "GET", "")
         local code, data = req:await()
@@ -62,7 +60,7 @@ do
     end
 
     do
-        print("### downloading install files list... ###")
+        print("downloading install files index...")
 
         local req = internetCard:request(INSTALL_FILES_URL, "GET", "")
         local code, data = req:await()
@@ -75,22 +73,22 @@ do
         installerFile:close()
     end
 
-    print("### download complete ###")
+    print("downloaded!")
 end
 
 local installer
 do
-    print("### loading... ###")
+    print("loading...")
 
     ---@type SphinxOS.Installer
     installer = filesystem.doFile(INSTALLER_PATH)
-    installer = installer.new(OS_URL, BASE_PATH, BOOT_PATH, internetCard, filesystem.doFile(INSTALL_FILES_PATH))
+    installer = installer.new(BASE_URL, BASE_PATH, BOOT_PATH, internetCard, filesystem.doFile(INSTALL_FILES_PATH))
 
-    print("### loaded ###")
+    print("loaded!")
 end
 
 do
-    print("### installing... ###")
+    print("installing...")
 
     print("downloading OS files...")
     installer:Download()
@@ -103,5 +101,5 @@ do
     print("writing boot loader to eeprom...")
     installer:LoadBootLoader()
 
-    print("### installed ###")
+    print("installed!")
 end
