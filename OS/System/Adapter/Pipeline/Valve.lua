@@ -3,7 +3,7 @@ local ProxyReference = require("//OS/System/References/ProxyReference")
 ---@type SphinxOS.System.Data.Cache<SphinxOS.System.References.IReference<Satisfactory.Components.Build_Valve_C>>
 local Cache = require("//OS/System/Data/Cache")()
 
----@class SphinxOS.System.Adapter.Pipeline.Valve : object
+---@class SphinxOS.System.Adapter.Pipeline.Valve : SphinxOS.System.IAdapter
 ---@field private m_iPAddress SphinxOS.System.Net.IPAddress
 ---@field private m_valve SphinxOS.System.References.IReference<Satisfactory.Components.Build_Valve_C>
 ---@overload fun(id: FIN.UUID) : SphinxOS.System.Adapter.Pipeline.Valve
@@ -37,9 +37,9 @@ end
 function Valve:__init(id)
     local success, valve = Cache:TryGet(id)
     if not success then
-        local valve = ProxyReference(id)
+        valve = ProxyReference(id)
         if not valve:Fetch() then
-            error("was not found")
+            error("valve was not found")
         end
         Cache:Add(id, self)
     end

@@ -3,10 +3,11 @@ local PCIDeviceReference = require("//OS/System/References/PCIDeviceReference")
 ---@type SphinxOS.System.Data.Cache<SphinxOS.System.References.IReference<FIN.Components.InternetCard_C>>
 local Cache = require("//OS/System/Data/Cache")()
 
----@class SphinxOS.System.Adapter.Computer.InternetCard : object
----@field m_refInternetCard SphinxOS.System.References.IReference<FIN.Components.InternetCard_C>
+---@class SphinxOS.System.Adapter.Computer.InternetCard : SphinxOS.System.IAdapter
+---@field m_ref SphinxOS.System.References.IReference<FIN.Components.InternetCard_C>
 local InternetCard = {}
 
+---@private
 ---@param index number
 function InternetCard:__init(index)
     if not index then
@@ -17,18 +18,18 @@ function InternetCard:__init(index)
     if not success then
         internetCard = PCIDeviceReference(classes.InternetCard_C, index)
         if not internetCard:Fetch() then
-            error("no internet card found")
+            error("internet card not found")
         end
         Cache:Add(index, internetCard)
     end
 
-    self.m_refInternetCard = internetCard
+    self.m_ref = internetCard
 end
 
 ---@param url string
 ---@return boolean success, string? data, number statusCode
 function InternetCard:Download(url)
-    local req = self.m_refInternetCard:Get():request(url, 'GET', '')
+    local req = self.m_ref:Get():request(url, 'GET', '')
     repeat until req:canGet()
 
     local code, data = req:get()
@@ -40,4 +41,5 @@ function InternetCard:Download(url)
     return true, data, code
 end
 
-return Utils.Class.Create(InternetCard, "SphinxOS.System.Adapter.Computer.InternetCard")
+return Utils.Class.Create(InternetCard, "SphinxOS.System.Adapter.Computer.InternetCard",
+    { BaseClass = require("//OS/System/Adapter/IAdapter") })

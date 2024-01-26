@@ -4,8 +4,8 @@ local PCIDeviceReference = require("Core.References.PCIDeviceReference")
 ---@type SphinxOS.System.Data.Cache<SphinxOS.System.References.IReference<FIN.Components.NetworkCard_C>>
 local Cache = require("//OS/System/Data/Cache")()
 
----@class SphinxOS.System.Adapter.Computer.NetworkCard : object
----@field private m_refNetworkCard SphinxOS.System.References.IReference<FIN.Components.NetworkCard_C>
+---@class SphinxOS.System.Adapter.Computer.NetworkCard : SphinxOS.System.IAdapter
+---@field private m_ref SphinxOS.System.References.IReference<FIN.Components.NetworkCard_C>
 ---@field private m_openPorts table<integer, true>
 ---@overload fun(idOrIndexOrNetworkCard: (FIN.UUID | integer)?) : SphinxOS.System.Adapter.Computer.NetworkCard
 local NetworkCard = {}
@@ -33,22 +33,22 @@ function NetworkCard:__init(idOrIndex)
         Cache:Add(idOrIndex, self)
     end
 
-    self.m_refNetworkCard = networkCard
+    self.m_ref = networkCard
     self:CloseAllPorts()
 end
 
 ---@return FIN.UUID
 function NetworkCard:GetIPAddress()
-    return self.m_refNetworkCard:Get().id
+    return self.m_ref:Get().id
 end
 
 ---@return string nick
 function NetworkCard:GetNick()
-    return self.m_refNetworkCard:Get().nick
+    return self.m_ref:Get().nick
 end
 
 function NetworkCard:Listen()
-    event.listen(self.m_refNetworkCard)
+    event.listen(self.m_ref)
 end
 
 ---@param port integer
@@ -58,7 +58,7 @@ function NetworkCard:OpenPort(port)
         return false
     end
 
-    self.m_refNetworkCard:Get():open(port)
+    self.m_ref:Get():open(port)
     self.m_openPorts[port] = true
     return true
 end
@@ -67,26 +67,27 @@ end
 function NetworkCard:ClosePort(port)
     self.m_openPorts[port] = nil
 
-    self.m_refNetworkCard:Get():close(port)
+    self.m_ref:Get():close(port)
 end
 
 function NetworkCard:CloseAllPorts()
     self.m_openPorts = {}
 
-    self.m_refNetworkCard:Get():closeAll()
+    self.m_ref:Get():closeAll()
 end
 
 ---@param address FIN.UUID
 ---@param port integer
 ---@param ... any
 function NetworkCard:Send(address, port, ...)
-    self.m_refNetworkCard:Get():send(address, port, ...)
+    self.m_ref:Get():send(address, port, ...)
 end
 
 ---@param port integer
 ---@param ... any
 function NetworkCard:BroadCast(port, ...)
-    self.m_refNetworkCard:Get():broadcast(port, ...)
+    self.m_ref:Get():broadcast(port, ...)
 end
 
-return Utils.Class.Create(NetworkCard, 'SphinxOS.System.Adapter.Computer.NetworkCard')
+return Utils.Class.Create(NetworkCard, 'SphinxOS.System.Adapter.Computer.NetworkCard',
+    { BaseClass = require("//OS/System/Adapter/IAdapter") })
