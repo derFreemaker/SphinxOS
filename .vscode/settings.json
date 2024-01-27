@@ -61,8 +61,12 @@
 			"letterSpacing": "1.2px"
 		},
 		{
+			"pattern": "\\[PROCESS START\\]",
+			"foreground": "#0e8f39"
+		},
+		{
 			"pattern": "\\[TASK START\\]",
-			"foreground": "#0da00d"
+			"foreground": "#0db60d"
 		}
 	],
 	"Lua.diagnostics.globals": [

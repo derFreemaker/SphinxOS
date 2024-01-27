@@ -3,6 +3,7 @@
 ---@field protected m_ref SphinxOS.System.References.IReference<Satisfactory.Components.Object>
 local IAdapter = {}
 
+-- ? idk if i want that
 -- ---@private
 -- ---@deprecated
 -- ---@param key any
@@ -22,6 +23,18 @@ local IAdapter = {}
 
 --     return value
 -- end
+
+function IAdapter:ListenToEvents()
+    event.listen(self.m_ref:Get())
+end
+
+function IAdapter:IgnoreEvents()
+    event.ignore(self.m_ref:Get())
+end
+
+function IAdapter:IsListening()
+    return Utils.Table.Contains(event.listening(), self.m_ref:Get())
+end
 
 ---@return integer
 function IAdapter:GetHashCode()

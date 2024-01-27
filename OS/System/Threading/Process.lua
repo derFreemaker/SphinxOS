@@ -176,7 +176,7 @@ function Process:Traceback()
         return self.m_traceback
     end
 
-    self.m_traceback = debug.traceback(self.m_thread.co, self.m_error)
+    self.m_traceback = self.m_thread:Traceback() .. "\n[PROCESS START]"
     return self.m_traceback
 end
 

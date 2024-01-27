@@ -59,7 +59,7 @@ function Task:State()
     if self.m_thread == nil then
         return "not created"
     end
-    return coroutine.status(self.m_thread.co)
+    return self.m_thread:Status()
 end
 
 ---@param ... any
@@ -126,7 +126,7 @@ function Task:Traceback()
         return self.m_traceback
     end
 
-    self.m_traceback = debug.traceback(self.m_thread, self.m_error or "") .. "\n[TASK START]"
+    self.m_traceback = self.m_thread:Traceback() .. "\n[TASK START]"
     return self.m_traceback
 end
 
