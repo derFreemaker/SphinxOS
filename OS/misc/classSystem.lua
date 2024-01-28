@@ -1307,6 +1307,7 @@ __fileFuncs__["__main__"] = function()
 
 	local Utils = __loadFile__("tools.Freemaker.bin.utils")
 
+	---@type Freemaker.ClassSystem.Utils
 	local ClassUtils = __loadFile__("src.ClassUtils")
 
 	local ObjectType = __loadFile__("src.Object")

@@ -4,7 +4,7 @@ local Json = require("//OS/System/Json")
 local SERIALIZABLE_NAME = Utils.Class.Nameof(Serializable)
 
 ---@class SphinxOS.System.Json.Serializer : object
----@field m_objs table<string, object>
+---@field m_classes table<string, object>
 ---@overload fun(typeInfos: object[]?) : SphinxOS.System.Json.Serializer
 local Serializer = {}
 
@@ -12,41 +12,41 @@ local Serializer = {}
 Serializer.Static__Serializer = Utils.Class.Placeholder
 
 ---@private
----@param objs object[]?
-function Serializer:__init(objs)
-    self.m_objs = {}
+---@param classes object[]?
+function Serializer:__init(classes)
+    self.m_classes = {}
 
-    for _, obj in ipairs(objs or {}) do
-        local name = Utils.Class.Nameof(obj)
-        self.m_objs[name] = obj
+    for _, class in ipairs(classes or {}) do
+        local name = Utils.Class.Nameof(class)
+        self.m_classes[name] = class
     end
 end
 
 function Serializer:AddTypesFromStatic()
-    for name, typeInfo in pairs(self.Static__Serializer.m_objs) do
-        if not Utils.Table.ContainsKey(self.m_objs, name) then
-            self.m_objs[name] = typeInfo
+    for name, typeInfo in pairs(self.Static__Serializer.m_classes) do
+        if not Utils.Table.ContainsKey(self.m_classes, name) then
+            self.m_classes[name] = typeInfo
         end
     end
 end
 
----@param obj object
+---@param class object
 ---@return SphinxOS.System.Json.Serializer
-function Serializer:AddClass(obj)
-    if not Utils.Class.HasBase(SERIALIZABLE_NAME, obj) then
+function Serializer:AddClass(class)
+    if not Utils.Class.HasBase(class, SERIALIZABLE_NAME) then
         error("class type has not Core.Json.Serializable as base class", 2)
     end
-    local name = Utils.Class.Nameof(obj)
-    if not Utils.Table.ContainsKey(self.m_objs, name) then
-        self.m_objs[name] = obj
+    local name = Utils.Class.Nameof(class)
+    if not Utils.Table.ContainsKey(self.m_classes, name) then
+        self.m_classes[name] = class
     end
     return self
 end
 
----@param objs object[]
+---@param classes object[]
 ---@return SphinxOS.System.Json.Serializer
-function Serializer:AddClasses(objs)
-    for _, typeInfo in ipairs(objs) do
+function Serializer:AddClasses(classes)
+    for _, typeInfo in ipairs(classes) do
         self:AddClass(typeInfo)
     end
     return self
@@ -140,7 +140,7 @@ end
 function Serializer:deserializeClass(t)
     local data = t.__Data
 
-    local obj = self.m_objs[t.__Type]
+    local obj = self.m_classes[t.__Type]
     if not obj then
         error("unable to find typeInfo for class: " .. t.__Type)
     end
@@ -204,6 +204,5 @@ end
 Utils.Class.Create(Serializer, "SphinxOS.System.Json.JsonSerializer")
 
 Serializer.Static__Serializer = Serializer()
--- Serializer.Static__Serializer:AddClass(require("Core.Common.UUID"))
 
 return Serializer

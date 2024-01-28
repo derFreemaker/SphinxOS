@@ -26,8 +26,6 @@ function GPUT2:__init(index)
     self.m_ref = gpu
 end
 
---//TODO: complete functions
-
 --- Flushes all draw calls to the visible draw call buffer to show all changes at once. The draw buffer gets cleared afterwards.
 function GPUT2:Flush()
     self.m_ref:Get():flush()
