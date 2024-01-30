@@ -14,5 +14,6 @@
 
 **/Sim-Files
 
-# don't ignore apache binaries
+# don't ignore some binaries
 !Code-Server/bin
+!OS/bin

@@ -4,7 +4,7 @@ local CurrentPath = Path.new(FileSystem.GetCurrentDirectory())
     :GetParentFolderPath()
     :GetParentFolderPath()
 local Sim, MainProcess = require('tools.Testing.Simulator'):InitializeWithOS(CurrentPath)
-print("MainProcess PID: " .. MainProcess.ID .. "\n")
+print("MainProcess PID: " .. MainProcess.PID .. "\n")
 
 local Buffer = require("/OS/System/IO/Buffer")
 local Stream = require("/OS/System/IO/Stream")
@@ -21,30 +21,30 @@ local testStream = Stream(testBuffer)
 local function foo(str, task)
     local currentProcess = Process.Static__Running()
 
-    currentProcess.stdOut:Write("id: '" .. currentProcess.ID .. "' data: '" .. str .. "'")
+    currentProcess.StdOut:Write("id: '" .. currentProcess.PID .. "' data: '" .. str .. "'")
 
     ---@diagnostic disable-next-line
     if currentProcess.m_parent then
         ---@diagnostic disable-next-line
-        currentProcess.stdOut:Write(" parentID: '" .. currentProcess.m_parent.ID .. "'")
+        currentProcess.StdOut:Write(" parentID: '" .. currentProcess.m_parent.ID .. "'")
     end
 
-    currentProcess.stdOut:Write("\n")
-    currentProcess.stdOut:Flush()
+    currentProcess.StdOut:Write("\n")
+    currentProcess.StdOut:Flush()
 
     if task then
-        task:Execute(currentProcess.ID)
+        task:Execute(currentProcess.PID)
         print(Environment.Static__Current().workingDirectory)
     end
 
     local process = require("/System/Threading/Process")
 
-    if currentProcess.ID < 6 then
+    if currentProcess.PID < 6 then
         local test = process(foo)
         test:Execute(str, task)
 
         if not test:IsSuccess() then
-            print("error in process PID: " .. test.ID)
+            print("error in process PID: " .. test.PID)
             print(test:Traceback())
         end
     end
@@ -72,11 +72,11 @@ if not test:IsSuccess() then
     print(test:Traceback())
 end
 
-MainProcess.stdOut:Write("\nbuffer:\n")
-MainProcess.stdOut:Write(testBuffer:Read() .. "\n")
-MainProcess.stdOut:Flush()
+MainProcess.StdOut:Write("\nbuffer:\n")
+MainProcess.StdOut:Write(testBuffer:Read() .. "\n")
+MainProcess.StdOut:Flush()
 
-print(MainProcess.stdIn:Read("l"))
+print(MainProcess.StdIn:Read("l"))
 
 print("### END ###")
 

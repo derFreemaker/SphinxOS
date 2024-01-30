@@ -1,17 +1,20 @@
 {
     "Lua.workspace.useGitIgnore": false,
 	"Lua.workspace.ignoreSubmodules": false,
-	"Lua.workspace.maxPreload": 10000,
-	"Lua.workspace.preloadFileSize": 2000,
+	"Lua.workspace.maxPreload": 20000,
+	"Lua.workspace.preloadFileSize": 10000,
     "Lua.workspace.ignoreDir": [
         "**/.git",
 		"**/.github",
 		"**/.vscode",
         "**/docu/tools",
+        "**/docu/FINLuaDocumentation.lua",
         "**/Sim-Files",
         "**/Freemaker/src",
-		"**/Code-Server"
+		"**/Code-Server",
+		"FicsIt-OS"
     ],
+	"Lua.diagnostics.ignoredFiles": "Disable",
     "Lua.diagnostics.disable": [
 		"different-requires"
 	],

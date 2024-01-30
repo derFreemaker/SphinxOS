@@ -78,11 +78,6 @@ function Stream:CanSeek()
 end
 
 ---@return integer
-function Stream:Length()
-    return self.m_buffer:Length() + self.m_cache:len()
-end
-
----@return integer
 function Stream:GetPosition()
     return self.m_position
 end

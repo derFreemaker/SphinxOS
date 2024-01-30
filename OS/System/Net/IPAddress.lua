@@ -6,15 +6,7 @@ local IPAddress = {}
 ---@private
 ---@param address FIN.UUID
 function IPAddress:__init(address)
-    self:Raw__ModifyBehavior(function(modify)
-        modify.CustomIndexing = false
-    end)
-
     self.m_address = address
-
-    self:Raw__ModifyBehavior(function(modify)
-        modify.CustomIndexing = true
-    end)
 end
 
 ---@return FIN.UUID
@@ -22,15 +14,9 @@ function IPAddress:GetAddress()
     return self.m_address
 end
 
----@param ipAddress SphinxOS.System.Net.IPAddress
-function IPAddress:Equals(ipAddress)
-    return self:GetAddress() == ipAddress:GetAddress()
-end
-
----@private
-function IPAddress:__newindex()
-    --//TODO: add readonly option to classSystem creation
-    error("SphinxOS.System.Net.IPAddress is read only.")
+---@param other SphinxOS.System.Net.IPAddress
+function IPAddress:Equals(other)
+    return self.m_address == other.m_address
 end
 
 ---@private

@@ -4,7 +4,7 @@ local Json = require("//OS/System/Json")
 local SERIALIZABLE_NAME = Utils.Class.Nameof(Serializable)
 
 ---@class SphinxOS.System.Json.Serializer : object
----@field m_classes table<string, object>
+---@field m_blueprints table<string, Freemaker.ClassSystem.Blueprint>
 ---@overload fun(typeInfos: object[]?) : SphinxOS.System.Json.Serializer
 local Serializer = {}
 
@@ -12,42 +12,42 @@ local Serializer = {}
 Serializer.Static__Serializer = Utils.Class.Placeholder
 
 ---@private
----@param classes object[]?
-function Serializer:__init(classes)
-    self.m_classes = {}
+---@param typeInfos Freemaker.ClassSystem.Type[]?
+function Serializer:__init(typeInfos)
+    self.m_blueprints = {}
 
-    for _, class in ipairs(classes or {}) do
-        local name = Utils.Class.Nameof(class)
-        self.m_classes[name] = class
+    for _, typeInfo in ipairs(typeInfos or {}) do
+        self.m_blueprints[typeInfo.Name] = typeInfo.Blueprint
     end
 end
 
 function Serializer:AddTypesFromStatic()
-    for name, typeInfo in pairs(self.Static__Serializer.m_classes) do
-        if not Utils.Table.ContainsKey(self.m_classes, name) then
-            self.m_classes[name] = typeInfo
+    for name, typeInfo in pairs(self.Static__Serializer.m_blueprints) do
+        if not Utils.Table.ContainsKey(self.m_blueprints, name) then
+            self.m_blueprints[name] = typeInfo
         end
     end
 end
 
----@param class object
+---@param typeInfo Freemaker.ClassSystem.Type
 ---@return SphinxOS.System.Json.Serializer
-function Serializer:AddClass(class)
-    if not Utils.Class.HasBase(class, SERIALIZABLE_NAME) then
+function Serializer:AddTypeInfo(typeInfo)
+    if not Utils.Class.HasBase(typeInfo, SERIALIZABLE_NAME) then
         error("class type has not Core.Json.Serializable as base class", 2)
     end
-    local name = Utils.Class.Nameof(class)
-    if not Utils.Table.ContainsKey(self.m_classes, name) then
-        self.m_classes[name] = class
+
+    if not Utils.Table.ContainsKey(self.m_blueprints, typeInfo.Name) then
+        self.m_blueprints[typeInfo.Name] = typeInfo.Blueprint
     end
+
     return self
 end
 
----@param classes object[]
+---@param typeInfos Freemaker.ClassSystem.Type[]
 ---@return SphinxOS.System.Json.Serializer
-function Serializer:AddClasses(classes)
-    for _, typeInfo in ipairs(classes) do
-        self:AddClass(typeInfo)
+function Serializer:AddTypeInfos(typeInfos)
+    for _, typeInfo in ipairs(typeInfos) do
+        self:AddTypeInfo(typeInfo)
     end
     return self
 end
@@ -55,11 +55,14 @@ end
 ---@private
 ---@param class SphinxOS.System.Json.Serializable
 ---@return table data
-function Serializer:serializeClass(class)
+function Serializer:_SerializeClass(class)
     local typeInfo = Utils.Class.Typeof(class)
     if not typeInfo then
         error("unable to get type from class")
     end
+
+    self:AddTypeInfo(typeInfo)
+    self.Static__Serializer:AddTypeInfo(typeInfo)
 
     local data = { __Type = typeInfo.Name, __Data = { class:Serialize() } }
 
@@ -78,7 +81,7 @@ function Serializer:serializeClass(class)
 
     if type(data.__Data) == "table" then
         for key, value in next, data.__Data, nil do
-            data.__Data[key] = self:serializeInternal(value)
+            data.__Data[key] = self:_SerializeInternal(value)
         end
     end
 
@@ -88,7 +91,7 @@ end
 ---@private
 ---@param obj any
 ---@return table data
-function Serializer:serializeInternal(obj)
+function Serializer:_SerializeInternal(obj)
     local objType = type(obj)
     if objType ~= "table" then
         if not Utils.Table.ContainsKey(Json.type_func_map, objType) then
@@ -101,12 +104,12 @@ function Serializer:serializeInternal(obj)
 
     if Utils.Class.HasBase(obj, SERIALIZABLE_NAME) then
         ---@cast obj SphinxOS.System.Json.Serializable
-        return self:serializeClass(obj)
+        return self:_SerializeClass(obj)
     end
 
     for key, value in next, obj, nil do
         if type(value) == "table" then
-            rawset(obj, key, self:serializeInternal(value))
+            rawset(obj, key, self:_SerializeInternal(value))
         end
     end
 
@@ -116,13 +119,13 @@ end
 ---@param obj any
 ---@return string str
 function Serializer:Serialize(obj)
-    return Json.encode(self:serializeInternal(obj))
+    return Json.encode(self:_SerializeInternal(obj))
 end
 
 ---@private
 ---@param t table
 ---@return boolean isDeserializedClass
-local function isDeserializedClass(t)
+local function _IsDeserializedClass(t)
     if not t.__Type then
         return false
     end
@@ -137,13 +140,15 @@ end
 ---@private
 ---@param t table
 ---@return object class
-function Serializer:deserializeClass(t)
+function Serializer:_DeserializeClass(t)
     local data = t.__Data
 
-    local obj = self.m_classes[t.__Type]
+    local obj = self.m_blueprints[t.__Type]
     if not obj then
         error("unable to find typeInfo for class: " .. t.__Type)
     end
+
+    ---@diagnostic disable-next-line: cast-type-mismatch
     ---@cast obj SphinxOS.System.Json.Serializable
 
     if type(data) == "table" then
@@ -153,7 +158,7 @@ function Serializer:deserializeClass(t)
             end
 
             if type(value) == "table" then
-                data[key] = self:deserializeInternal(value)
+                data[key] = self:_DeserializeInternal(value)
             end
         end
     end
@@ -164,14 +169,14 @@ end
 ---@private
 ---@param t table
 ---@return any obj
-function Serializer:deserializeInternal(t)
-    if isDeserializedClass(t) then
-        return self:deserializeClass(t)
+function Serializer:_DeserializeInternal(t)
+    if _IsDeserializedClass(t) then
+        return self:_DeserializeClass(t)
     end
 
     for key, value in next, t, nil do
         if type(value) == "table" then
-            t[key] = self:deserializeInternal(value)
+            t[key] = self:_DeserializeInternal(value)
         end
     end
 
@@ -184,7 +189,7 @@ function Serializer:Deserialize(str)
     local obj = Json.decode(str)
 
     if type(obj) == "table" then
-        return self:deserializeInternal(obj)
+        return self:_DeserializeInternal(obj)
     end
 
     return obj

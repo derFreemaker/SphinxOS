@@ -14,11 +14,11 @@ end
 
 Serializable.Serialize = Utils.Class.IsAbstract
 
----@param obj object
+---@param class object
 ---@param ... any
 ---@return object obj
-function Serializable.Static__Deserialize(obj, ...)
-    return obj(...)
+function Serializable.Static__Deserialize(class, ...)
+    return class(...)
 end
 
 return Utils.Class.Create(Serializable, "SphinxOS.System.Json.Serializable", { IsAbstract = true })

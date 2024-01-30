@@ -1,6 +1,12 @@
 ---@class SphinxOS.System.IO.IStream : object
 local IStream = {}
 
+function IStream:IsTTY()
+    error("not implemented")
+end
+
+IStream.IsTTY = Utils.Class.IsAbstract
+
 function IStream:Close()
     error("not implemented")
 end
@@ -33,13 +39,6 @@ function IStream:CanSeek()
 end
 
 IStream.CanSeek = Utils.Class.IsAbstract
-
----@return integer
-function IStream:Length()
-    error("not implemented")
-end
-
-IStream.Length = Utils.Class.IsAbstract
 
 ---@param str string
 function IStream:Write(str)
@@ -95,7 +94,7 @@ IStream.ReadLineWithLineEnding = Utils.Class.IsAbstract
 ---@return string?
 function IStream:Read(modeOrLength)
     if not self:CanRead() then
-        error("unable to read in this stream")
+        error("unable to read in this stream (" .. Utils.Class.Nameof(self) .. ")")
     end
 
     if type(modeOrLength) == "number" then
@@ -158,12 +157,12 @@ IStream.SetFromEnd = Utils.Class.IsAbstract
 ---@param offset integer?
 ---@return integer pos current position
 function IStream:Seek(mode, offset)
-    if mode == nil and offset == nil then
-        return self:GetPosition()
+    if not self:CanSeek() then
+        error("unable to seek in this stream (" .. Utils.Class.Nameof(self) .. ")")
     end
 
-    if not self:CanSeek() then
-        error("unable to seek in this stream")
+    if mode == nil and offset == nil then
+        return self:GetPosition()
     end
 
     if type(mode) == "number" then

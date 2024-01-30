@@ -184,6 +184,8 @@ __fileFuncs__["src.Meta"] = function()
 	---@field Options Freemaker.ClassSystem.Type.Options
 	---
 	---@field Instances table<object, boolean>
+	---
+	---@field Blueprint Freemaker.ClassSystem.Blueprint?
 
 	---@class Freemaker.ClassSystem.Type.Options
 	---@field IsAbstract boolean?
@@ -608,9 +610,7 @@ __fileFuncs__["src.Object"] = function()
 
 	    func(modify)
 
-	    if modify.CustomIndexing ~= nil then
-	        metatable.Instance.CustomIndexing = modify.CustomIndexing
-	    end
+	    metatable.Instance.CustomIndexing = modify.CustomIndexing
 	end
 
 	----------------------------------------
@@ -634,7 +634,6 @@ __fileFuncs__["src.Object"] = function()
 
 	    Options = {
 	        IsAbstract = true,
-	        IsReadOnly = false,
 	    },
 
 	    Instances = setmetatable({}, { __mode = 'k' })
@@ -1202,6 +1201,10 @@ __fileFuncs__["src.Construction"] = function()
 	    metatable.__call = construct
 
 	    setmetatable(data, metatable)
+
+	    if not typeInfo.Options.IsAbstract then
+	        typeInfo.Blueprint = data
+	    end
 	end
 
 	---@param typeInfo Freemaker.ClassSystem.Type

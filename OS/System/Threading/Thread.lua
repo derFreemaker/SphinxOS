@@ -16,6 +16,7 @@ local _threadStop = {}
 local Thread = {}
 
 ---@private
+---@deprecated
 ---@param func function
 function Thread:__init(func)
     self.m_co = Coroutine.create(func)
@@ -24,8 +25,18 @@ function Thread:__init(func)
 end
 
 ---@private
+---@deprecated
 function Thread:__gc()
     self:Close()
+end
+
+function Thread:IsSuccess()
+    return self.m_success
+end
+
+---@return string
+function Thread:GetError()
+    return self.m_error
 end
 
 ---@return boolean success, any[] results
