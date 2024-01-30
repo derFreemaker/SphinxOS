@@ -15,13 +15,19 @@ local Process = require("//OS/System/Threading/Process")
 ---
 ---@field LastScreenWidth integer
 ---@field LastScreenHeight integer
+---@overload fun(process: SphinxOS.System.Threading.Process?, gpu: FIN.Components.GPU_T1_C) : SphinxOS.System.Terminal
 local Terminal = {}
 
 ---@private
 ---@deprecated
+---@param gpu FIN.Components.GPU_T1_C
 ---@param process SphinxOS.System.Threading.Process?
-function Terminal:__init(process)
+function Terminal:__init(gpu, process)
     self.Process = process or Process.Static__Running()
+
+    self.m_gpu = gpu
+    self.m_gpuBuffer = structs.GPUT1Buffer()
+    gpu:setBuffer(self.m_gpuBuffer)
 
     self.m_buffer = {}
 

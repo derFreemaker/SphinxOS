@@ -1,9 +1,13 @@
-local Process = require("/OS/System/Threading/Process")
+local Process = require("//OS/System/Threading/Process")
+
+local Terminal = require("//OS/System/Terminal")
 
 local function main()
     --//TODO: is like a watchdog
 
     --//TODO: start up terminal
+
+    local terminal = Terminal()
 end
 
 local mainProcess = Process(main, {
