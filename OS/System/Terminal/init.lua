@@ -15,7 +15,7 @@ local Process = require("//OS/System/Threading/Process")
 ---
 ---@field LastScreenWidth integer
 ---@field LastScreenHeight integer
----@overload fun(process: SphinxOS.System.Threading.Process?, gpu: FIN.Components.GPU_T1_C) : SphinxOS.System.Terminal
+---@overload fun(gpu: FIN.Components.GPU_T1_C, process: SphinxOS.System.Threading.Process?) : SphinxOS.System.Terminal
 local Terminal = {}
 
 ---@private

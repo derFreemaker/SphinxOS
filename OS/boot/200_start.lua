@@ -7,7 +7,7 @@ local function main()
 
     --//TODO: start up terminal
 
-    local terminal = Terminal()
+    local terminal = Terminal(gpu)
 end
 
 local mainProcess = Process(main, {
