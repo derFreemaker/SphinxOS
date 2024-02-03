@@ -4,3 +4,5 @@
 [submodule "docu"]
 	path = docu
 	url = https://github.com/derFreemaker/FIcsIt-Networks-Documentation.git
+[submodule "FIcsIt-OS"]
+	url = https://github.com/Panakotta00/FicsIt-OS.git
