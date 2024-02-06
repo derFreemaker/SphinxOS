@@ -1,5 +1,3 @@
-local Require = require("//OS/System/Require")
-
 ---@class SphinxOS.System.Threading.Environment.Global
 ---@field ENV SphinxOS.System.Threading.Environment
 ---@field Process SphinxOS.System.Threading.Process
@@ -41,12 +39,10 @@ function Environment:Prepare()
     _history[#_history + 1] = self
 
     __ENV.ENV = self
-    Require.SetWorkingDirectory(self.workingDirectory)
 end
 
 function Environment:Revert()
     __ENV.ENV = nil
-    Require.SetWorkingDirectory()
     self.m_prepared = false
 
     _history[#_history] = nil
@@ -58,7 +54,7 @@ end
 
 ---@return SphinxOS.System.Threading.Environment
 function Environment.Static__Current()
-    return __ENV.ENV
+    return __ENV.ENV or Environment.Static__Default()
 end
 
 return Utils.Class.Create(Environment, "SphinxOS.System.Threading.Environment")

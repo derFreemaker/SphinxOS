@@ -3,11 +3,11 @@ local Process = require("//OS/System/Threading/Process")
 local Terminal = require("//OS/System/Terminal")
 
 local function main()
-    --//TODO: is like a watchdog
+    -- //TODO: is like a watchdog
 
-    --//TODO: start up terminal
+    -- //TODO: start up terminal
 
-    local terminal = Terminal(gpu)
+    -- local terminal = Terminal(gpu)
 end
 
 local mainProcess = Process(main, {

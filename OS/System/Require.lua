@@ -1,23 +1,14 @@
+local Environment = require("OS.System.Threading.Environment")
+
 ---@class SphinxOS.System.Require
----@field package workingDirectory string?
 ---@field package cache table<string, any[]>
 ---@field Searchers (fun(path: string) : string)[]
 local Require = {
     cache = {},
-    workingDirectory = "",
     Searchers = {}
 }
 Require.cache["/OS/System/Require.lua"] = { Require }
-
----@param path string?
-function Require.SetWorkingDirectory(path)
-    if not path or path == "/" then
-        Require.workingDirectory = nil
-        return
-    end
-
-    Require.workingDirectory = filesystem.path(path)
-end
+Require.cache["/OS/System/Threading/Environment.lua"] = { Environment }
 
 if NotInGame then
     return Require
@@ -25,8 +16,9 @@ end
 
 ---@param path string
 function require(path)
-    if Require.workingDirectory and path:find("//") ~= 1 then
-        path = Require.workingDirectory .. path
+    local env = Environment.Static__Current()
+    if env and path:find("//") ~= 1 then
+        path = filesystem.path(env.workingDirectory .. path)
     end
     path = path:gsub("//", "/")
 
